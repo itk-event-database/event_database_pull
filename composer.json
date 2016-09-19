@@ -1,0 +1,18 @@
+{
+    "name": "drupal/event_database_pull",
+    "description": "Show events from the Event database API on a Drupal site",
+    "type": "drupal-module",
+    "keywords": ["Drupal"],
+    "license": "GPL-2.0+",
+    "require": {
+        "itk/event-database-client": "*"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/itk-event-database/event-database-client"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

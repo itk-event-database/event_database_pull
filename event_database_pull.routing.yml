@@ -1,0 +1,23 @@
+event_database_pull.settings_form:
+  path: '/admin/config/event_database_pull/settings'
+  defaults:
+    _form: 'Drupal\event_database_pull\Form\SettingsForm'
+    _title: 'Event database pull settings'
+  requirements:
+    _permission: 'administer site configuration'
+
+event_database_pull.events_list:
+  path: '/event_database_pull/events'
+  defaults:
+    _controller: 'Drupal\event_database_pull\Controller\EventController::listAction'
+    _title: 'Event list'
+  requirements:
+    _permission: 'access content'
+
+event_database_pull.events_show:
+  path: '/event_database_pull/events/{id}'
+  defaults:
+    _controller: 'Drupal\event_database_pull\Controller\EventController::showAction'
+    _title: 'Event details'
+  requirements:
+    _permission: 'access content'

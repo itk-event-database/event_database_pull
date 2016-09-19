@@ -1,0 +1,32 @@
+<article class="itk-event-database-event-details">
+	<h1><a href="{{ event.url }}">{{ event.name }}</a></h1>
+
+	<div class="description">{{ event.description }}</div>
+
+	{% if event.occurrences %}
+		<div class="occurrences">
+			{% for occurrence in event.occurrences %}
+				<div class="occurrence">
+					<dl>
+						<dt>{{ 'Start date' | t }}</dt>
+						<dd>{{ occurrence.startDate | date('c') }}</dd>
+
+						<dt>{{ 'End date' | t }}</dt>
+						<dd>{{ occurrence.endDate ? occurrence.endDate | date('c') : '–'}}</dd>
+
+						{% if occurrence.place %}
+							<dt>{{ 'Place' | t }}</dt>
+							<dd>{{ occurrence.place.name }}</dd>
+						{% endif %}
+					</dl>
+				</div>
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	{% if event.url %}
+		<div class="url"><a href="{{ event.url }}">{{ event.url }}</a></div>
+	{% endif %}
+</article>
+
+<a href="{{ path('event_database_pull.events_list') }}">{{ 'Back to list' | t }}</a>

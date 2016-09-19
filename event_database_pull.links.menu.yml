@@ -1,0 +1,6 @@
+event_database_pull.settings:
+  title: 'Event database pull settings'
+  route_name: event_database_pull.settings_form
+  description: 'Settings for publishing events from the Event database'
+  parent: system.admin_config_system
+  weight: 99
