@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "51b1263069e85be33f537663c5600be7",
-    "content-hash": "3ac74725e4ee4b085237f0130cfbc41d",
+    "hash": "4784ec14127948b45f1f21f3dcf975d5",
+    "content-hash": "eb31a25c4c0e24fbd370122e19404f38",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -180,12 +180,17 @@
         },
         {
             "name": "itk/event-database-client",
-            "version": "0.1.0",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/itk-event-database/event-database-client.git",
+                "reference": "1540ca1247130623d66e7f01bcae14114e3717e3"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/itk/event-database-client",
-                "reference": "032d72390fa19cea26de285133444b906eeda8b1",
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/itk-event-database/event-database-client/zipball/1540ca1247130623d66e7f01bcae14114e3717e3",
+                "reference": "1540ca1247130623d66e7f01bcae14114e3717e3",
+                "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.2",
@@ -203,20 +208,25 @@
                     "email": "rimi@aarhus.dk"
                 }
             ],
-            "description": "Event Database client"
+            "description": "Event Database client",
+            "support": {
+                "source": "https://github.com/itk-event-database/event-database-client/tree/develop",
+                "issues": "https://github.com/itk-event-database/event-database-client/issues"
+            },
+            "time": "2016-09-15 14:58:37"
         },
         {
             "name": "lcobucci/jwt",
-            "version": "3.1.2",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "9a8db2cd42346f96993928ff6a6c22563f555ab1"
+                "reference": "7668cb045296f290588d04c391569c7b7fc1f899"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/9a8db2cd42346f96993928ff6a6c22563f555ab1",
-                "reference": "9a8db2cd42346f96993928ff6a6c22563f555ab1",
+                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/7668cb045296f290588d04c391569c7b7fc1f899",
+                "reference": "7668cb045296f290588d04c391569c7b7fc1f899",
                 "shasum": ""
             },
             "require": {
@@ -261,20 +271,20 @@
                 "JWS",
                 "jwt"
             ],
-            "time": "2016-07-27 11:09:37"
+            "time": "2016-08-13 23:12:58"
         },
         {
             "name": "psr/http-message",
-            "version": "1.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/http-message.git",
-                "reference": "85d63699f0dbedb190bbd4b0d2b9dc707ea4c298"
+                "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-message/zipball/85d63699f0dbedb190bbd4b0d2b9dc707ea4c298",
-                "reference": "85d63699f0dbedb190bbd4b0d2b9dc707ea4c298",
+                "url": "https://api.github.com/repos/php-fig/http-message/zipball/f6561bf28d520154e4b0ec72be95418abe6d9363",
+                "reference": "f6561bf28d520154e4b0ec72be95418abe6d9363",
                 "shasum": ""
             },
             "require": {
@@ -302,6 +312,7 @@
                 }
             ],
             "description": "Common interface for HTTP messages",
+            "homepage": "https://github.com/php-fig/http-message",
             "keywords": [
                 "http",
                 "http-message",
@@ -310,7 +321,7 @@
                 "request",
                 "response"
             ],
-            "time": "2015-05-04 20:22:00"
+            "time": "2016-08-06 14:39:51"
         }
     ],
     "packages-dev": [],
