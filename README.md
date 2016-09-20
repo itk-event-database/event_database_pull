@@ -1,5 +1,12 @@
-Event database pull (Drupal module)
-===================================
+# Event database pull (Drupal module)
+
+## Installation ##
+
+```
+cd «drupal root»
+composer config repositories.itk composer https://composer.etek.dk/
+composer require drupal/event_database_pull
+```
 
 
 ## Development ##
