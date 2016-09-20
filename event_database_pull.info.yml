@@ -2,4 +2,5 @@ name: Event Database
 type: module
 description: 'Publish events from the Event database'
 core: 8.x
+package: Event database
 configure: event_database_pull.settings
