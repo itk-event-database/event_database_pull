@@ -7,12 +7,6 @@
     "require": {
         "itk-event-database/event-database-client": "dev-master"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/itk-event-database/event-database-client"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }
