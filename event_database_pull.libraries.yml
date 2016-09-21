@@ -1,0 +1,4 @@
+event_database_pull:
+  css:
+    theme:
+      css/event-database-pull.css: {}

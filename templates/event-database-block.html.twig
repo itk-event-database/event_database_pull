@@ -1,0 +1,43 @@
+{#
+/**
+* @file
+* Display a list of elements from event database.
+
+* Available variables:
+* - view:
+* - events: All events from source
+*/
+#}
+
+<section class="itk-event-database-event-list">
+	{% for event in events %}
+		<article class="event">
+			<h1>{{ event.name }}</h1>
+			<div class="description">{{ event.description | raw }}</div>
+			{% if event.occurrences %}
+				<div class="occurrences">
+					{% for occurrence in event.occurrences %}
+						<div class="occurrence">
+							<div class="occurence--date-wrapper">
+								{% include '@event_database_pull/calendar.svg' %} <span class="occurence--date"> {{ occurrence.startDate | date('j/n') }}</span>
+								{% if occurrence.get('samedate') == FALSE %}
+									<span class="occurence--separator"> {{ 'to' | t }} </span><span class="occurence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
+								{% endif %}
+								<span class="occurence--year">- {{ occurrence.startDate | date('Y') }}</span>
+							</div>
+							<div class="occurence--time-wrapper">
+								{% include '@event_database_pull/time.svg' %} <span> {{ occurrence.startDate | date('H:i') }}</span>
+							</div>
+							{% if occurrence.place and occurrence.place.name %}
+								<div class="occurence--place-wrapper">
+									<span class="occurence--label">{{ 'Place' | t }}: </span><span class="occurence--place">{{ occurrence.place.name }}</span>
+								</div>
+							{% endif %}
+							<div><a href="{{ path('event_database_pull.events_show', { id: event.itemId }) }}">{{ 'Read more' | t }}</a></div>
+						</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</article>
+	{% endfor %}
+</section>
