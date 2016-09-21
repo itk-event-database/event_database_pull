@@ -1,49 +1,60 @@
-<section class="itk-event-database-event-list">
-	{% if view %}
-		<ol>
-			{% if view.first %}
-				<li><a href="{{ view.first }}">{{ 'First' | t }}</a></li>
-			{% endif %}
-			{% if view.previous %}
-				<li><a href="{{ view.previous }}">{{ 'Previous' | t }}</a></li>
-			{% endif %}
-			{% if view.next %}
-				<li><a href="{{ view.next }}">{{ 'Next' | t }}</a></li>
-			{% endif %}
-			{% if view.last %}
-				<li><a href="{{ view.last }}">{{ 'Last' | t }}</a></li>
-			{% endif %}
-		</Ol>
-	{% endif %}
+{#
+/**
+* @file
+* Display a list of elements from event database.
 
+* Available variables:
+* - view:
+* - events: All events from source
+*/
+#}
+
+<section class="itk-event-database-event-list">
 	{% for event in events %}
 		<article class="event">
-			<a href="{{ path('event_database_pull.events_show', { id: event.itemId }) }}">
-				<h1>{{ event.name }}</h1>
-
-				<div class="description">{{ event.description }}</div>
-
-				{% if event.occurrences %}
-					<div class="occurrences">
-						{% for occurrence in event.occurrences %}
-							<div class="occurrence">
-								<dl>
-									<dt>{{ 'Start date' | t }}</dt>
-									<dd>{{ occurrence.startDate | date('c') }}</dd>
-
-									<dt>{{ 'End date' | t }}</dt>
-									<dd>{{ occurrence.endDate ? occurrence.endDate | date('c') : '–'}}</dd>
-
-									{% if occurrence.place and occurrence.place.name %}
-										<dt>{{ 'Place' | t }}</dt>
-										<dd>{{ occurrence.place.name }}</dd>
-									{% endif %}
-								</dl>
+			<h1>{{ event.name }}</h1>
+			<div class="description">{{ event.description | raw }}</div>
+			{% if event.occurrences %}
+				<div class="occurrences">
+					{% for occurrence in event.occurrences %}
+						<div class="occurrence">
+							<div class="occurence--date-wrapper">
+								{% include '@event_database_pull/calendar.svg' %} <span class="occurence--date"> {{ occurrence.startDate | date('j/n') }}</span>
+								{% if occurrence.get('samedate') == FALSE %}
+									<span class="occurence--separator"> {{ 'to' | t }} </span><span class="occurence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
+								{% endif %}
+								<span class="occurence--year">- {{ occurrence.startDate | date('Y') }}</span>
 							</div>
-						{% endfor %}
-					</div>
-				{% endif %}
-			</a>
+							<div class="occurence--time-wrapper">
+								{% include '@event_database_pull/time.svg' %} <span> {{ occurrence.startDate | date('H:i') }}</span>
+							</div>
+							{% if occurrence.place and occurrence.place.name %}
+								<div class="occurence--place-wrapper">
+									<span class="occurence--label">{{ 'Place' | t }}: </span><span class="occurence--place">{{ occurrence.place.name }}</span>
+								</div>
+							{% endif %}
+							<div><a href="{{ path('event_database_pull.events_show', { id: event.itemId }) }}">{{ 'Read more' | t }}</a></div>
+						</div>
+					{% endfor %}
+				</div>
+			{% endif %}
 		</article>
 	{% endfor %}
+
+	{% if view %}
+		<ul class="pager">
+			{% if view.first %}
+				<li class="pager__item pager__item--first"><a href="{{ view.first }}">{{ 'First' | t }}</a></li>
+			{% endif %}
+			{% if view.previous %}
+				<li class="pager__item pager__item--previous"><a href="{{ view.previous }}">{{ 'Previous' | t }}</a></li>
+			{% endif %}
+			{% if view.next %}
+				<li class="pager__item pager__item--next"><a href="{{ view.next }}">{{ 'Next' | t }}</a></li>
+			{% endif %}
+			{% if view.last %}
+				<li class="pager__item pager__item--last"><a href="{{ view.last }}">{{ 'Last' | t }}</a></li>
+			{% endif %}
+		</ul>
+	{% endif %}
 </section>

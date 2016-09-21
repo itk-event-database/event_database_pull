@@ -1,5 +1,7 @@
 name: Event Database
 type: module
+interface translation project: event_database_pull
+interface translation server pattern: modules/event_database_pull/translations/event_database_pull.%language.po
 description: 'Publish events from the Event database'
 core: 8.x
 configure: event_database_pull.settings
