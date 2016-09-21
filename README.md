@@ -1,5 +1,12 @@
-Event database pull (Drupal module)
-===================================
+# Event database pull (Drupal module)
+
+## Installation ##
+
+```
+cd «drupal root»
+composer config repositories.itk composer https://composer.etek.dk/
+composer require drupal/event_database_pull
+```
 
 
 ## Development ##
@@ -17,8 +24,8 @@ git clone --branch develop https://github.com/itk-event-database/event-database-
 
 ```
 cd «drupal root»
-rm -fr vendor/itk/event-database-client
-ln -sf ../../modules/lib/event-database-client vendor/itk/event-database-client
+rm -fr vendor/itk-event-database/event-database-client
+ln -sf ../../modules/lib/event-database-client vendor/itk-event-database/event-database-client
 ```
 
 
