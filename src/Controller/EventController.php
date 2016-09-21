@@ -4,6 +4,8 @@ namespace Drupal\event_database_pull\Controller;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
+use Itk\EventDatabaseClient\Collection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Itk\EventDatabaseClient\Client;
@@ -43,13 +45,7 @@ class EventController extends ControllerBase {
       $query = $this->getListQuery($request);
       $result = $client->getEvents($query);
       $events = $result->getItems();
-
-      $view = array_filter([
-                'first' => $result->getFirst(),
-                'previous' => $result->getPrevious(),
-                'next' => $result->getNext(),
-                'last' => $result->getLast(),
-              ]);
+      $view = $this->getView($result);
 
       return [
         '#theme' => 'event_database_pull_event_list',
@@ -62,32 +58,6 @@ class EventController extends ControllerBase {
         '#markup' => $ex->getMessage(),
       ];
     }
-  }
-
-  private function getClient() {
-    $url = $this->configuration->get('api.url');
-    $username = $this->configuration->get('api.username');
-    $password = $this->configuration->get('api.password');
-    $client = new Client($url, $username, $password);
-
-    return $client;
-  }
-
-  private function getListQuery(Request $request) {
-    $query = [];
-
-    $configQuery = $this->configuration->get('list.query');
-    if ($configQuery) {
-      try {
-        $query = Yaml::parse($configQuery);
-      } catch (ParseException $ex) {
-        $query = [];
-      }
-    }
-
-    $query = array_merge($query, $request->query->all());
-
-    return $query;
   }
 
   public function showAction($id) {
@@ -112,5 +82,52 @@ class EventController extends ControllerBase {
         '#markup' => $ex->getMessage(),
       ];
     }
+  }
+
+  private function getView(Collection $collection) {
+    $view = [];
+
+    foreach (['first', 'previous', 'next', 'last'] as $key) {
+      $url = $collection->get($key);
+      if ($url) {
+        $info = parse_url($url);
+        if (!empty($info['query'])) {
+          parse_str($info['query'], $query);
+          $view[$key] = Url::fromRoute('event_database_pull.events_list', $query);
+        }
+      }
+    }
+
+    return $view;
+  }
+
+  private function getClient() {
+    $url = $this->configuration->get('api.url');
+    $username = $this->configuration->get('api.username');
+    $password = $this->configuration->get('api.password');
+    $client = new Client($url, $username, $password);
+
+    return $client;
+  }
+
+  private function getListQuery(Request $request) {
+    $query = [];
+
+    $configQuery = $this->configuration->get('list.query');
+    if ($configQuery) {
+      try {
+        $query = Yaml::parse($configQuery);
+      } catch (ParseException $ex) {
+        $query = [];
+      }
+    }
+
+    if (empty($query)) {
+      $query = [];
+    }
+
+    $query = array_merge($query, $request->query->all());
+
+    return $query;
   }
 }
