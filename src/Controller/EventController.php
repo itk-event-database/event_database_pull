@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Itk\EventDatabaseClient\Client;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use DateTimeZone;
+use DateTime;
 
 class EventController extends ControllerBase {
   /**
@@ -47,10 +49,35 @@ class EventController extends ControllerBase {
       $events = $result->getItems();
       $view = $this->getView($result);
 
+      // Add samedate variable to all occurences.
+      $DateTimeZoneUTC = new DateTimeZone('UTC');
+
+      foreach ($events as $event_key => $event) {
+        foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
+          $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
+          $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
+          if ($startDate && $endDate) {
+            $startdate = \Drupal::service('date.formatter')
+              ->format($startDate->getTimestamp(), 'custom', 'dmY');
+            $enddate = \Drupal::service('date.formatter')
+              ->format($endDate->getTimestamp(), 'custom', 'dmY');
+            $occurrence->samedate = ($startdate == $enddate);
+          }
+        }
+      }
+
       return [
         '#theme' => 'event_database_pull_event_list',
         '#events' => $events,
         '#view' => $view,
+        '#attached' => array(
+          'library' => array(
+            'event_database_pull/event_database_pull',
+          ),
+        ),
+        '#cache' => array(
+          'max-age' => 0,
+        ),
       ];
     } catch (\Exception $ex) {
       return [
@@ -60,6 +87,11 @@ class EventController extends ControllerBase {
     }
   }
 
+
+  /**
+   * @param $id
+   * @return array
+   */
   public function showAction($id) {
     \Drupal::service('page_cache_kill_switch')->trigger();
 
@@ -72,9 +104,29 @@ class EventController extends ControllerBase {
       $client = new Client($url, $username, $password);
       $event = $client->readEvent($id);
 
+      // Add samedate variable to all occurences.
+      $DateTimeZoneUTC = new DateTimeZone('UTC');
+
+      foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
+        $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
+        $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
+        if ($startDate && $endDate) {
+          $startdate = \Drupal::service('date.formatter')
+            ->format($startDate->getTimestamp(), 'custom', 'dmY');
+          $enddate = \Drupal::service('date.formatter')
+            ->format($endDate->getTimestamp(), 'custom', 'dmY');
+          $occurrence->samedate = ($startdate == $enddate);
+        }
+      }
+
       return [
         '#theme' => 'event_database_pull_event_details',
         '#event' => $event,
+        '#attached' => array(
+          'library' => array(
+            'event_database_pull/event_database_pull',
+          ),
+        ),
       ];
     } catch (\Exception $ex) {
       return [
@@ -84,6 +136,10 @@ class EventController extends ControllerBase {
     }
   }
 
+  /**
+   * @param \Itk\EventDatabaseClient\Collection $collection
+   * @return array
+   */
   private function getView(Collection $collection) {
     $view = [];
 
@@ -101,6 +157,10 @@ class EventController extends ControllerBase {
     return $view;
   }
 
+
+  /**
+   * @return \Itk\EventDatabaseClient\Client
+   */
   private function getClient() {
     $url = $this->configuration->get('api.url');
     $username = $this->configuration->get('api.username');
@@ -110,6 +170,10 @@ class EventController extends ControllerBase {
     return $client;
   }
 
+  /**
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @return array|mixed
+   */
   private function getListQuery(Request $request) {
     $query = [];
 

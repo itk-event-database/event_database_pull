@@ -40,21 +40,4 @@
 			{% endif %}
 		</article>
 	{% endfor %}
-
-	{% if view %}
-		<ul class="pager">
-			{% if view.first %}
-				<li class="pager__item pager__item--first"><a href="{{ view.first }}">{{ 'First' | t }}</a></li>
-			{% endif %}
-			{% if view.previous %}
-				<li class="pager__item pager__item--previous"><a href="{{ view.previous }}">{{ 'Previous' | t }}</a></li>
-			{% endif %}
-			{% if view.next %}
-				<li class="pager__item pager__item--next"><a href="{{ view.next }}">{{ 'Next' | t }}</a></li>
-			{% endif %}
-			{% if view.last %}
-				<li class="pager__item pager__item--last"><a href="{{ view.last }}">{{ 'Last' | t }}</a></li>
-			{% endif %}
-		</ul>
-	{% endif %}
 </section>
