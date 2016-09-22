@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Functions related to event database pull module
+ */
 
 /**
  *  Implements hook_theme().
@@ -23,4 +27,24 @@ function event_database_pull_theme($existing, $type, $theme, $path) {
       ],
     ],
   ];
+}
+
+/**
+ * Add samedate variable to all occurences of an event.
+ *
+ * @param $event
+ * @param $DateTimeZoneUTC
+ */
+function _event_database_pull_set_same_date ($event, $DateTimeZoneUTC) {
+    foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
+    $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
+    $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
+    if ($startDate && $endDate) {
+      $startdate = \Drupal::service('date.formatter')
+        ->format($startDate->getTimestamp(), 'custom', 'dmY');
+      $enddate = \Drupal::service('date.formatter')
+        ->format($endDate->getTimestamp(), 'custom', 'dmY');
+      $occurrence->samedate = ($startdate == $enddate);
+    }
+  }
 }

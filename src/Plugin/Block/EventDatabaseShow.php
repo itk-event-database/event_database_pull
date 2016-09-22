@@ -7,8 +7,6 @@ use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Itk\EventDatabaseClient\Client;
 use DateTimeZone;
-use DateTime;
-
 
 /**
  * Provides hamburger menu
@@ -41,20 +39,8 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface {
       $DateTimeZoneUTC = new DateTimeZone('UTC');
 
       foreach ($events as $event_key => $event) {
-        foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
-          $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
-          $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
-          if ($startDate && $endDate) {
-            $startdate = \Drupal::service('date.formatter')->format($startDate->getTimestamp(), 'custom', 'dmY');
-            $enddate = \Drupal::service('date.formatter')->format($endDate->getTimestamp(), 'custom', 'dmY');
-            $occurrence->samedate = ($startdate == $enddate);
-          }
-          else {
-            $occurrence->samedate = FALSE;
-          }
-        }
+        _event_database_pull_set_same_date($event, $DateTimeZoneUTC);
       }
-
 
       // @todo Fix bug in pager. (Assumes wrong path)
       $view = array_filter([

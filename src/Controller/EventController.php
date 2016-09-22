@@ -12,7 +12,6 @@ use Itk\EventDatabaseClient\Client;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 use DateTimeZone;
-use DateTime;
 
 class EventController extends ControllerBase {
   /**
@@ -53,19 +52,9 @@ class EventController extends ControllerBase {
       $DateTimeZoneUTC = new DateTimeZone('UTC');
 
       foreach ($events as $event_key => $event) {
-        foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
-          $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
-          $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
-          if ($startDate && $endDate) {
-            $startdate = \Drupal::service('date.formatter')
-              ->format($startDate->getTimestamp(), 'custom', 'dmY');
-            $enddate = \Drupal::service('date.formatter')
-              ->format($endDate->getTimestamp(), 'custom', 'dmY');
-            $occurrence->samedate = ($startdate == $enddate);
-          }
-        }
+        _event_database_pull_set_same_date($event, $DateTimeZoneUTC);
       }
-
+      
       return [
         '#theme' => 'event_database_pull_event_list',
         '#events' => $events,
@@ -87,7 +76,6 @@ class EventController extends ControllerBase {
     }
   }
 
-
   /**
    * @param $id
    * @return array
@@ -106,18 +94,7 @@ class EventController extends ControllerBase {
 
       // Add samedate variable to all occurences.
       $DateTimeZoneUTC = new DateTimeZone('UTC');
-
-      foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
-        $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
-        $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
-        if ($startDate && $endDate) {
-          $startdate = \Drupal::service('date.formatter')
-            ->format($startDate->getTimestamp(), 'custom', 'dmY');
-          $enddate = \Drupal::service('date.formatter')
-            ->format($endDate->getTimestamp(), 'custom', 'dmY');
-          $occurrence->samedate = ($startdate == $enddate);
-        }
-      }
+      _event_database_pull_set_same_date($event, $DateTimeZoneUTC);
 
       return [
         '#theme' => 'event_database_pull_event_details',
@@ -157,7 +134,6 @@ class EventController extends ControllerBase {
     return $view;
   }
 
-
   /**
    * @return \Itk\EventDatabaseClient\Client
    */
@@ -190,7 +166,8 @@ class EventController extends ControllerBase {
       $query = [];
     }
 
-    $query = array_merge($query, $request->query->all());
+    $userQuery = $request->query->all();
+    $query = array_merge($query, $userQuery);
 
     return $query;
   }
