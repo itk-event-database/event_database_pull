@@ -6,6 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Itk\EventDatabaseClient\Collection;
+use League\Uri\Components\Query;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Itk\EventDatabaseClient\Client;
@@ -13,6 +14,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 use DateTimeZone;
 use DateTime;
+
 
 class EventController extends ControllerBase {
   /**
@@ -190,7 +192,10 @@ class EventController extends ControllerBase {
       $query = [];
     }
 
-    $query = array_merge($query, $request->query->all());
+    if (!empty($_SERVER['QUERY_STRING'])) {
+      $userQuery = new Query($_SERVER['QUERY_STRING']);
+      $query = array_merge($query, $userQuery->toArray());
+    }
 
     return $query;
   }
