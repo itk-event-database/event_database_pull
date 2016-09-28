@@ -20,8 +20,8 @@
 						<div class="occurrence">
 							<div class="occurence--date-wrapper">
 								{% include '@event_database_pull/calendar.svg' %} <span class="occurence--date"> {{ occurrence.startDate | date('j/n') }}</span>
-								{% if occurrence.get('samedate') == FALSE %}
-									<span class="occurence--separator"> {{ 'to' | t }} </span><span class="occurence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
+								{% if occurrence.get('samedate') == false and occurrence.startDate < occurrence.endDate %}
+								<span class="occurence--separator"> {{ 'to' | t }} </span><span class="occurence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
 								{% endif %}
 								<span class="occurence--year">- {{ occurrence.startDate | date('Y') }}</span>
 							</div>
@@ -33,9 +33,9 @@
 									<span class="occurence--label">{{ 'Place' | t }}: </span><span class="occurence--place">{{ occurrence.place.name }}</span>
 								</div>
 							{% endif %}
-							<div><a href="{{ path('event_database_pull.events_show', { id: event.itemId }) }}">{{ 'Read more' | t }}</a></div>
 						</div>
 					{% endfor %}
+					<div><a href="{{ path('event_database_pull.events_show', { id: event.itemId }) }}">{{ 'Read more' | t }}</a></div>
 				</div>
 			{% endif %}
 		</article>

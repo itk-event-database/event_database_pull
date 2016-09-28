@@ -52,7 +52,6 @@ class EventController extends ControllerBase {
 
       // Add samedate variable to all occurences.
       $DateTimeZoneUTC = new DateTimeZone('UTC');
-
       foreach ($events as $event_key => $event) {
         _event_database_pull_set_same_date($event, $DateTimeZoneUTC);
       }
@@ -156,6 +155,7 @@ class EventController extends ControllerBase {
     $query = [];
 
     $configQuery = $this->configuration->get('list.query');
+
     if ($configQuery) {
       try {
         $query = Yaml::parse($configQuery);

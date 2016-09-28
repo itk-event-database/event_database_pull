@@ -46,5 +46,8 @@ function _event_database_pull_set_same_date ($event, $DateTimeZoneUTC) {
         ->format($endDate->getTimestamp(), 'custom', 'dmY');
       $occurrence->samedate = ($startdate == $enddate);
     }
+    else {
+      $occurrence->samedate = FALSE;
+    }
   }
 }
