@@ -1,0 +1,5 @@
+services:
+  event_database_pull.event_database:
+    class: Drupal\event_database_pull\Service\EventDatabase
+    arguments:
+      - "@config.factory"

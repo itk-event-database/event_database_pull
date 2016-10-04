@@ -40,14 +40,14 @@ class SettingsForm extends ConfigFormBase {
       ],
       'username' => [
         '#type' => 'textfield',
-        '#required' => TRUE,
+        '#required' => FALSE,
         '#title' => $this->t('Username'),
         '#default_value' => $config->get('api.username'),
         '#description' => $this->t('The Event database API username'),
       ],
       'password' => [
         '#type' => 'textfield',
-        '#required' => TRUE,
+        '#required' => FALSE,
         '#title' => $this->t('Password'),
         '#default_value' => $config->get('api.password'),
         '#description' => $this->t('The Event database API password'),
@@ -77,7 +77,8 @@ class SettingsForm extends ConfigFormBase {
     try {
       $value = $form_state->getValue(['list', 'query']);
       Yaml::parse($value);
-    } catch (ParseException $ex) {
+    }
+    catch (ParseException $ex) {
       $form_state->setError($form['list']['query'], $this->t('Query must be valid YAML (@message)', ['@message' => $ex->getMessage()]));
     }
 
