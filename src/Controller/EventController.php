@@ -2,30 +2,30 @@
 
 namespace Drupal\event_database_pull\Controller;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
+use Drupal\event_database_pull\Service\EventDatabase;
 use Itk\EventDatabaseClient\Collection;
 use League\Uri\Components\Query;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Itk\EventDatabaseClient\Client;
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
-use DateTimeZone;
 
-
+/**
+ * Event database controller.
+ */
 class EventController extends ControllerBase {
   /**
-   * @var \Drupal\Core\Config\ImmutableConfig
+   * The event database service.
+   *
+   * @var EventDatabase
    */
-  protected $configuration;
+  protected $eventDatabase;
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(ConfigFactoryInterface $configFactory) {
-    $this->configuration = $configFactory->get('event_database_pull.settings');
+  public function __construct(EventDatabase $eventDatabase) {
+    $this->eventDatabase = $eventDatabase;
   }
 
   /**
@@ -33,29 +33,23 @@ class EventController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('config.factory')
+      $container->get('event_database_pull.event_database')
     );
   }
 
   /**
+   * List events.
+   *
    * @return array
+   *   The return value!
    */
   public function listAction(Request $request) {
-    \Drupal::service('page_cache_kill_switch')->trigger();
-
     try {
-      $client = $this->getClient();
       $query = $this->getListQuery($request);
-      $result = $client->getEvents($query);
+      $result = $this->eventDatabase->getEvents($query);
       $events = $result->getItems();
       $view = $this->getView($result);
 
-      // Add samedate variable to all occurences.
-      $DateTimeZoneUTC = new DateTimeZone('UTC');
-      foreach ($events as $event_key => $event) {
-        _event_database_pull_set_same_date($event, $DateTimeZoneUTC);
-      }
-      
       return [
         '#theme' => 'event_database_pull_event_list',
         '#events' => $events,
@@ -65,11 +59,12 @@ class EventController extends ControllerBase {
             'event_database_pull/event_database_pull',
           ),
         ),
-        '#cache' => array(
+        '#cache' => [
           'max-age' => 0,
-        ),
+        ],
       ];
-    } catch (\Exception $ex) {
+    }
+    catch (\Exception $ex) {
       return [
         '#type' => 'markup',
         '#markup' => $ex->getMessage(),
@@ -78,35 +73,31 @@ class EventController extends ControllerBase {
   }
 
   /**
-   * @param $id
+   * Show a event details.
+   *
+   * @param string $id
+   *   The event id.
+   *
    * @return array
+   *   The return value!
    */
   public function showAction($id) {
     \Drupal::service('page_cache_kill_switch')->trigger();
 
-    $config = \Drupal::config('event_database_pull.settings');
-    $url = $config->get('api.url');
-    $username = $config->get('api.username');
-    $password = $config->get('api.password');
-
     try {
-      $client = new Client($url, $username, $password);
-      $event = $client->readEvent($id);
-
-      // Add samedate variable to all occurences.
-      $DateTimeZoneUTC = new DateTimeZone('UTC');
-      _event_database_pull_set_same_date($event, $DateTimeZoneUTC);
+      $event = $this->eventDatabase->getEvent($id);
 
       return [
         '#theme' => 'event_database_pull_event_details',
         '#event' => $event,
-        '#attached' => array(
-          'library' => array(
+        '#attached' => [
+          'library' => [
             'event_database_pull/event_database_pull',
-          ),
-        ),
+          ],
+        ],
       ];
-    } catch (\Exception $ex) {
+    }
+    catch (\Exception $ex) {
       return [
         '#type' => 'markup',
         '#markup' => $ex->getMessage(),
@@ -115,8 +106,13 @@ class EventController extends ControllerBase {
   }
 
   /**
+   * Get paging view for a collection of events.
+   *
    * @param \Itk\EventDatabaseClient\Collection $collection
+   *   The collection.
+   *
    * @return array
+   *   The view.
    */
   private function getView(Collection $collection) {
     $view = [];
@@ -136,43 +132,15 @@ class EventController extends ControllerBase {
   }
 
   /**
-   * @return \Itk\EventDatabaseClient\Client
-   */
-  private function getClient() {
-    $url = $this->configuration->get('api.url');
-    $username = $this->configuration->get('api.username');
-    $password = $this->configuration->get('api.password');
-    $client = new Client($url, $username, $password);
-
-    return $client;
-  }
-
-  /**
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   * @return array|mixed
+   * Get list query from request.
+   *
+   * @return array
+   *   The query.
    */
   private function getListQuery(Request $request) {
-    $query = [];
+    $query = new Query($request->getQueryString());
 
-    $configQuery = $this->configuration->get('list.query');
-
-    if ($configQuery) {
-      try {
-        $query = Yaml::parse($configQuery);
-      } catch (ParseException $ex) {
-        $query = [];
-      }
-    }
-
-    if (empty($query)) {
-      $query = [];
-    }
-
-    if (!empty($_SERVER['QUERY_STRING'])) {
-      $userQuery = new Query($_SERVER['QUERY_STRING']);
-      $query = array_merge($query, $userQuery->toArray());
-    }
-
-    return $query;
+    return $query->toArray();
   }
+
 }
