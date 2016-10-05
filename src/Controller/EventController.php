@@ -68,6 +68,9 @@ class EventController extends ControllerBase {
       return [
         '#type' => 'markup',
         '#markup' => $ex->getMessage(),
+        '#cache' => [
+          'max-age' => 0,
+        ],
       ];
     }
   }

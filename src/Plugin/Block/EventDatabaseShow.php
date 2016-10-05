@@ -80,6 +80,9 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
       return [
         '#type' => 'markup',
         '#markup' => $ex->getMessage(),
+        '#cache' => [
+          'max-age' => 0,
+        ],
       ];
     }
   }
