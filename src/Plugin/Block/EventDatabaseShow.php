@@ -7,10 +7,10 @@ use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\event_database_pull\Service\EventDatabase;
-use League\Uri\Components\Query;
 use Itk\EventDatabaseClient\Collection;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Event database block.
@@ -54,36 +54,26 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
    */
   public function build() {
     // Setup query array.
-    $blockConfig = $this->getConfiguration();
-
-    $userQuery = new Query($blockConfig['query']);
-    $query = $userQuery->toArray();
-
-    if (!empty($blockConfig['count'])) {
-      $query['items_per_page'] = $blockConfig['count'];
-    }
-
-    if (!empty($blockConfig['order'])) {
-      $query['order[occurrences.startDate]'] = $blockConfig['order'];
-    }
+    $config = $this->getConfiguration();
+    $query = $this->getQuery($config);
 
     try {
-      $result = $this->eventDatabase->getEvents($query);
+      $result = $this->eventDatabase->getEvents($query, $config['inherit_module_configuration']);
       $events = $result->getItems();
       $view = $this->getView($result);
 
       return [
         '#theme' => 'event_database_block',
         '#events' => $events,
-        '#attached' => array(
-          'library' => array(
+        '#attached' => [
+          'library' => [
             'event_database_pull/event_database_pull',
-          ),
-        ),
+          ],
+        ],
         '#view' => $view,
-        '#cache' => array(
+        '#cache' => [
           'max-age' => 0,
-        ),
+        ],
       ];
     }
     catch (\Exception $ex) {
@@ -92,6 +82,40 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
         '#markup' => $ex->getMessage(),
       ];
     }
+  }
+
+  /**
+   * Get event database client query from configuration.
+   *
+   * @param array $config
+   *   The configuration.
+   *
+   * @return array
+   *   The query.
+   */
+  private function getQuery(array $config) {
+    $query = [];
+
+    if (isset($config['items_per_page'])) {
+      $query['items_per_page'] = $config['items_per_page'];
+    }
+
+    if (isset($config['order'])) {
+      $query['order[occurrences.startDate]'] = $config['order'];
+    }
+
+    if (isset($config['query'])) {
+      try {
+        $value = Yaml::parse($config['query']);
+        if (is_array($value)) {
+          $query = array_merge($query, $value);
+        }
+      }
+      catch (ParseException $ex) {
+      }
+    }
+
+    return $query;
   }
 
   /**
@@ -126,37 +150,44 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
   public function blockForm($form, FormStateInterface $form_state) {
     $form = parent::blockForm($form, $form_state);
     $config = $this->getConfiguration();
-    $form['event_settings'] = array(
-      '#type' => 'details',
-      '#title' => $this->t('Display settings'),
-      '#open' => TRUE,
-    );
 
-    $form['event_settings']['query'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Query'),
-      '#description' => t('A query string'),
-      '#default_value' => isset($config['query']) ? $config['query'] : '',
-      '#size' => 100,
-    );
+    $form['list'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Event list'),
+      '#tree' => TRUE,
 
-    $form['event_settings']['number_of_events'] = array(
-      '#type' => 'number',
-      '#title' => $this->t('Number of events'),
-      '#description' => t('The number of events to display in the block'),
-      '#default_value' => isset($config['count']) ? $config['count'] : 5,
-      '#size' => 5,
-    );
+      'inherit_module_configuration' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Inherit module event list configuration'),
+        '#description' => $this->t('If set, the settings below will be added on top of the module configuration. Otherwise, the module configuration will be ignored.'),
+        '#default_value' => !isset($config['inherit_module_configuration']) || $config['inherit_module_configuration'],
+      ],
 
-    $form['event_settings']['order'] = array(
-      '#type' => 'radios',
-      '#title' => $this->t('Order'),
-      '#default_value' => isset($config['order']) ? $config['order'] : 'asc',
-      '#options' => array(
-        'asc' => $this->t('Show first upcoming first'),
-        'desc' => $this->t('Show first upcoming last'),
-      ),
-    );
+      'items_per_page' => [
+        '#type' => 'number',
+        '#title' => $this->t('Number of events per page'),
+        '#description' => t('The number of events to display per page'),
+        '#default_value' => isset($config['items_per_page']) ? $config['items_per_page'] : 5,
+        '#size' => 5,
+      ],
+
+      'order' => [
+        '#type' => 'radios',
+        '#title' => $this->t('Order'),
+        '#default_value' => isset($config['order']) ? $config['order'] : 'ASC',
+        '#options' => [
+          'ASC' => $this->t('Show first upcoming first'),
+          'DESC' => $this->t('Show first upcoming last'),
+        ],
+      ],
+
+      'query' => [
+        '#type' => 'textarea',
+        '#title' => $this->t('Query'),
+        '#default_value' => $config['query'],
+        '#description' => $this->t('Query parameters (YAML) to add to the Event database query'),
+      ],
+    ];
 
     return $form;
   }
@@ -165,10 +196,11 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $block_settings = $form_state->getValues('event_settings');
-    $this->setConfigurationValue('query', $block_settings['event_settings']['query']);
-    $this->setConfigurationValue('count', $block_settings['event_settings']['number_of_events']);
-    $this->setConfigurationValue('order', $block_settings['event_settings']['order']);
+    $settings = $form_state->getValues('list');
+    $this->setConfigurationValue('inherit_module_configuration', $settings['list']['inherit_module_configuration']);
+    $this->setConfigurationValue('items_per_page', $settings['list']['items_per_page']);
+    $this->setConfigurationValue('order', $settings['list']['order']);
+    $this->setConfigurationValue('query', $settings['list']['query']);
   }
 
 }

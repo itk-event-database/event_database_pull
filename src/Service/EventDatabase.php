@@ -35,9 +35,9 @@ class EventDatabase {
    * @return \Itk\EventDatabaseClient\Collection
    *   The events.
    */
-  public function getEvents(array $query) {
+  public function getEvents(array $query, $mergeQuery = TRUE) {
     $client = $this->getClient();
-    $query = $this->getListQuery($query);
+    $query = $this->getListQuery($query, $mergeQuery);
     $result = $client->getEvents($query);
 
     foreach ($result->getItems() as &$event) {
@@ -113,23 +113,31 @@ class EventDatabase {
    * @return array
    *   The query;
    */
-  private function getListQuery(array $userQuery) {
+  private function getListQuery(array $userQuery, $mergeQuery) {
     $query = [];
 
-    $config = $this->configuration->get('list');
+    if ($mergeQuery) {
+      $config = $this->configuration->get('list');
 
-    if (isset($config['query'])) {
-      try {
-        $query = Yaml::parse($config['query']);
+      if (isset($config['items_per_page'])) {
+        $query['items_per_page'] = $config['items_per_page'];
       }
-      catch (ParseException $ex) {
+
+      if (isset($config['order'])) {
+        $query['order[occurrences.startDate]'] = $config['order'];
+      }
+
+      if (isset($config['query'])) {
+        try {
+          $configQuery = Yaml::parse($config['query']);
+          if (is_array($configQuery)) {
+            $query = array_merge($query, $configQuery);
+          }
+        }
+        catch (ParseException $ex) {
+        }
       }
     }
-
-    if (empty($query)) {
-      $query = [];
-    }
-
     if ($userQuery) {
       $query = array_merge($query, $userQuery);
     }

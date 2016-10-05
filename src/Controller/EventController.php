@@ -54,11 +54,11 @@ class EventController extends ControllerBase {
         '#theme' => 'event_database_pull_event_list',
         '#events' => $events,
         '#view' => $view,
-        '#attached' => array(
-          'library' => array(
+        '#attached' => [
+          'library' => [
             'event_database_pull/event_database_pull',
-          ),
-        ),
+          ],
+        ],
         '#cache' => [
           'max-age' => 0,
         ],
