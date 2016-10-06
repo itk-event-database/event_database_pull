@@ -69,6 +69,7 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
       $result = $this->eventDatabase->getEvents($query, $config['inherit_module_configuration']);
       $events = $result->getItems();
       $view = $this->getView($result);
+      $view['more_link'] = $config['show_all_events_link'];
 
       return [
         '#theme' => 'event_database_block',
@@ -177,8 +178,8 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
 
       'items_per_page' => [
         '#type' => 'number',
-        '#title' => $this->t('Number of events per page'),
-        '#description' => t('The number of events to display per page'),
+        '#title' => $this->t('Number of events'),
+        '#description' => t('The number of events to display'),
         '#default_value' => isset($config['items_per_page']) ? $config['items_per_page'] : 5,
         '#size' => 5,
       ],
@@ -199,6 +200,13 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
         '#default_value' => $config['query'],
         '#description' => $this->t('Query parameters (YAML) to add to the Event database query'),
       ],
+
+      'show_all_events_link' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Show all events link'),
+        '#description' => $this->t('If set, shows a link to the events page.'),
+        '#default_value' => !isset($config['show_all_events_link']) || $config['show_all_events_link'],
+      ],
     ];
 
     return $form;
@@ -213,6 +221,7 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
     $this->setConfigurationValue('items_per_page', $settings['list']['items_per_page']);
     $this->setConfigurationValue('order', $settings['list']['order']);
     $this->setConfigurationValue('query', $settings['list']['query']);
+    $this->setConfigurationValue('show_all_events_link', $settings['list']['show_all_events_link']);
   }
 
 }

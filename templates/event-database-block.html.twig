@@ -4,18 +4,18 @@
 * Display a list of elements from event database.
 
 * Available variables:
-* - view:
+* - view: General display settings
 * - events: All events from source
 */
 #}
 
-<section class="itk-event-database-event-list">
+<section class="event-list">
 	{% for event in events %}
-		<article class="event">
+		<article class="event-list--event">
 			<h1>{{ event.name }}</h1>
-			<div class="description">{{ event.description | raw }}</div>
+			<div class="event-list--event-description">{{ event.description | raw }}</div>
 			{% if event.occurrences %}
-				<div class="occurrences">
+				<div class="event-list--occurrences">
 					{% for occurrence in event.occurrences %}
 						<div class="occurrence">
 							<div class="occurence--date-wrapper">
@@ -40,4 +40,9 @@
 			{% endif %}
 		</article>
 	{% endfor %}
+	{% if view.more_link %}
+		<div class="event-list--footer">
+			<a class="event-list--read-more button" href="{{ path('event_database_pull.events_list') }}">{{ 'Show all events' | t }}</a>
+		</div>
+	{% endif %}
 </section>
