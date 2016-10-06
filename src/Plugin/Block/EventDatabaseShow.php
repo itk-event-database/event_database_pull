@@ -9,6 +9,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\event_database_pull\Service\EventDatabase;
 use Itk\EventDatabaseClient\Collection;
 use Drupal\Core\Url;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -29,12 +30,18 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
   private $eventDatabase;
 
   /**
+   * @var LoggerInterface
+   */
+  private $logger;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EventDatabase $eventDatabase) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EventDatabase $eventDatabase, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->eventDatabase = $eventDatabase;
+    $this->logger = $logger;
   }
 
   /**
@@ -45,7 +52,8 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('event_database_pull.event_database')
+      $container->get('event_database_pull.event_database'),
+      $container->get('event_database_pull.logger')
     );
   }
 
@@ -77,9 +85,10 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
       ];
     }
     catch (\Exception $ex) {
+      $this->logger->error($ex->getMessage());
       return [
-        '#type' => 'markup',
-        '#markup' => $ex->getMessage(),
+        '#theme' => 'event_database_block_error',
+        '#message' => $ex->getMessage(),
         '#cache' => [
           'max-age' => 0,
         ],

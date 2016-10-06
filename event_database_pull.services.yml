@@ -1,5 +1,10 @@
 services:
+  event_database_pull.logger:
+    parent: logger.channel_base
+    arguments: ['event_database_pull']
+
   event_database_pull.event_database:
     class: Drupal\event_database_pull\Service\EventDatabase
     arguments:
       - "@config.factory"
+      - "@event_database_pull.logger"

@@ -7,6 +7,7 @@ use Drupal\Core\Url;
 use Drupal\event_database_pull\Service\EventDatabase;
 use Itk\EventDatabaseClient\Collection;
 use League\Uri\Components\Query;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,10 +23,18 @@ class EventController extends ControllerBase {
   protected $eventDatabase;
 
   /**
+   * A logger.
+   *
+   * @var LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(EventDatabase $eventDatabase) {
+  public function __construct(EventDatabase $eventDatabase, LoggerInterface $logger) {
     $this->eventDatabase = $eventDatabase;
+    $this->logger = $logger;
   }
 
   /**
@@ -33,7 +42,8 @@ class EventController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('event_database_pull.event_database')
+      $container->get('event_database_pull.event_database'),
+      $container->get('event_database_pull.logger')
     );
   }
 
@@ -65,13 +75,7 @@ class EventController extends ControllerBase {
       ];
     }
     catch (\Exception $ex) {
-      return [
-        '#type' => 'markup',
-        '#markup' => $ex->getMessage(),
-        '#cache' => [
-          'max-age' => 0,
-        ],
-      ];
+      return $this->errorAction($ex);
     }
   }
 
@@ -101,11 +105,19 @@ class EventController extends ControllerBase {
       ];
     }
     catch (\Exception $ex) {
-      return [
-        '#type' => 'markup',
-        '#markup' => $ex->getMessage(),
-      ];
+      return $this->errorAction($ex);
     }
+  }
+
+  private function errorAction(\Exception $ex) {
+    $this->logger->error($ex->getMessage());
+    return [
+      '#theme' => 'event_database_pull_error',
+      '#message' => $ex->getMessage(),
+      '#cache' => [
+        'max-age' => 0,
+      ],
+    ];
   }
 
   /**
