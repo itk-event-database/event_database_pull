@@ -4,6 +4,7 @@ namespace Drupal\event_database_pull\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -40,14 +41,14 @@ class SettingsForm extends ConfigFormBase {
       ],
       'username' => [
         '#type' => 'textfield',
-        '#required' => TRUE,
+        '#required' => FALSE,
         '#title' => $this->t('Username'),
         '#default_value' => $config->get('api.username'),
         '#description' => $this->t('The Event database API username'),
       ],
       'password' => [
         '#type' => 'textfield',
-        '#required' => TRUE,
+        '#required' => FALSE,
         '#title' => $this->t('Password'),
         '#default_value' => $config->get('api.password'),
         '#description' => $this->t('The Event database API password'),
@@ -56,12 +57,30 @@ class SettingsForm extends ConfigFormBase {
 
     $form['list'] = [
       '#type' => 'fieldset',
-      '#title' => t('Event list'),
+      '#title' => $this->t('Event list'),
       '#tree' => TRUE,
+
+      'items_per_page' => [
+        '#type' => 'number',
+        '#title' => $this->t('Number of events per page'),
+        '#description' => t('The number of events to display per page'),
+        '#default_value' => $config->get('list.items_per_page') ?: 5,
+        '#size' => 5,
+      ],
+
+      'order' => [
+        '#type' => 'radios',
+        '#title' => $this->t('Order'),
+        '#default_value' => $config->get('list.order') ?: 'ASC',
+        '#options' => [
+          'ASC' => $this->t('Show first upcoming first'),
+          'DESC' => $this->t('Show first upcoming last'),
+        ],
+      ],
 
       'query' => [
         '#type' => 'textarea',
-        '#title' => t('Query'),
+        '#title' => $this->t('Query'),
         '#default_value' => $config->get('list.query'),
         '#description' => $this->t('Query parameters (YAML) to add to the Event database query'),
       ],
@@ -77,7 +96,8 @@ class SettingsForm extends ConfigFormBase {
     try {
       $value = $form_state->getValue(['list', 'query']);
       Yaml::parse($value);
-    } catch (ParseException $ex) {
+    }
+    catch (ParseException $ex) {
       $form_state->setError($form['list']['query'], $this->t('Query must be valid YAML (@message)', ['@message' => $ex->getMessage()]));
     }
 
@@ -94,10 +114,14 @@ class SettingsForm extends ConfigFormBase {
     $config->set('api.username', $form_state->getValue(['api', 'username']));
     $config->set('api.password', $form_state->getValue(['api', 'password']));
 
+    $config->set('list.items_per_page', $form_state->getValue(['list', 'items_per_page']));
+    $config->set('list.order', $form_state->getValue(['list', 'order']));
     $config->set('list.query', $form_state->getValue(['list', 'query']));
 
     $config->save();
-    return parent::submitForm($form, $form_state);
+    parent::submitForm($form, $form_state);
+    $message = Link::createFromRoute($this->t('View events list'), 'event_database_pull.events_list')->toString();
+    drupal_set_message($message);
   }
 
   /**

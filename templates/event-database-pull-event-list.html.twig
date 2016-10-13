@@ -9,18 +9,19 @@
 */
 #}
 
-<section class="itk-event-database-event-list">
+<h1 class="content--header">{{ 'All events' | t }}</h1>
+<section class="event-list">
 	{% for event in events %}
-		<article class="event">
+		<article class="event-list--event">
 			<h1>{{ event.name }}</h1>
-			<div class="description">{{ event.description | raw }}</div>
+			<div class="event-list--description">{{ event.description | raw }}</div>
 			{% if event.occurrences %}
-				<div class="occurrences">
+				<div class="event-list--occurrences">
 					{% for occurrence in event.occurrences %}
 						<div class="occurrence">
 							<div class="occurence--date-wrapper">
 								{% include '@event_database_pull/calendar.svg' %} <span class="occurence--date"> {{ occurrence.startDate | date('j/n') }}</span>
-								{% if occurrence.get('samedate') == FALSE %}
+								{% if occurrence.get('samedate') == FALSE and occurrence.startDate < occurrence.endDate %}
 									<span class="occurence--separator"> {{ 'to' | t }} </span><span class="occurence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
 								{% endif %}
 								<span class="occurence--year">- {{ occurrence.startDate | date('Y') }}</span>
@@ -42,19 +43,19 @@
 	{% endfor %}
 
 	{% if view %}
-		<ul class="pager">
+		<span class="pager">
 			{% if view.first %}
-				<li class="pager__item pager__item--first"><a href="{{ view.first }}">{{ 'First' | t }}</a></li>
+				<span class="pager__item pager__item--first"><a href="{{ view.first }}">{{ 'First' | t }}</a></span>
 			{% endif %}
 			{% if view.previous %}
-				<li class="pager__item pager__item--previous"><a href="{{ view.previous }}">{{ 'Previous' | t }}</a></li>
+				<span class="pager__item pager__item--previous"><a href="{{ view.previous }}">{{ 'Previous' | t }}</a></span>
 			{% endif %}
 			{% if view.next %}
-				<li class="pager__item pager__item--next"><a href="{{ view.next }}">{{ 'Next' | t }}</a></li>
+				<span class="pager__item pager__item--next"><a href="{{ view.next }}">{{ 'Next' | t }}</a></span>
 			{% endif %}
 			{% if view.last %}
-				<li class="pager__item pager__item--last"><a href="{{ view.last }}">{{ 'Last' | t }}</a></li>
+				<span class="pager__item pager__item--last"><a href="{{ view.last }}">{{ 'Last' | t }}</a></span>
 			{% endif %}
-		</ul>
+		</span>
 	{% endif %}
 </section>

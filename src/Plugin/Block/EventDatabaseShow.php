@@ -5,86 +5,157 @@ namespace Drupal\event_database_pull\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Itk\EventDatabaseClient\Client;
-use DateTimeZone;
-use DateTime;
-
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\event_database_pull\Service\EventDatabase;
+use Itk\EventDatabaseClient\Collection;
+use Drupal\Core\Url;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
- * Provides hamburger menu
+ * Event database block.
  *
  * @Block(
  *   id = "event_database_show",
  *   admin_label = @Translation("Event database show"),
  * )
  */
-class EventDatabaseShow extends BlockBase implements BlockPluginInterface {
+class EventDatabaseShow extends BlockBase implements BlockPluginInterface, ContainerFactoryPluginInterface {
+  /**
+   * The event database service.
+   *
+   * @var \Drupal\event_database_pull\Service\EventDatabase
+   */
+  private $eventDatabase;
+
+  /**
+   * @var LoggerInterface
+   */
+  private $logger;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EventDatabase $eventDatabase, LoggerInterface $logger) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
+    $this->eventDatabase = $eventDatabase;
+    $this->logger = $logger;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('event_database_pull.event_database'),
+      $container->get('event_database_pull.logger')
+    );
+  }
+
   /**
    * {@inheritdoc}
    */
   public function build() {
-    $config = \Drupal::config('event_database_pull.settings');
-    $url = $config->get('api.url');
-    $username = $config->get('api.username');
-    $password = $config->get('api.password');
-
     // Setup query array.
-    $blockConfig = $this->getConfiguration();
-    parse_str($blockConfig['query'], $query_array);
+    $config = $this->getConfiguration();
+    $query = $this->getQuery($config);
 
     try {
-      $client = new Client($url, $username, $password);
-      $result = $client->getEvents($query_array);
+      $result = $this->eventDatabase->getEvents($query, $config['inherit_module_configuration']);
       $events = $result->getItems();
-
-      // Add samedate variable to all occurences.
-      $DateTimeZoneUTC = new DateTimeZone('UTC');
-
-      foreach ($events as $event_key => $event) {
-        foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
-          $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
-          $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
-          if ($startDate && $endDate) {
-            $startdate = \Drupal::service('date.formatter')->format($startDate->getTimestamp(), 'custom', 'dmY');
-            $enddate = \Drupal::service('date.formatter')->format($endDate->getTimestamp(), 'custom', 'dmY');
-            $occurrence->samedate = ($startdate == $enddate);
-          }
-          else {
-            $occurrence->samedate = FALSE;
-          }
-        }
-      }
-
-
-      // @todo Fix bug in pager. (Assumes wrong path)
-      $view = array_filter([
-        'first' => $result->getFirst(),
-        'previous' => $result->getPrevious(),
-        'next' => $result->getNext(),
-        'last' => $result->getLast(),
-      ]);
+      $view = $this->getView($result);
+      $view['more_link'] = $config['show_all_events_link'];
 
       return [
         '#theme' => 'event_database_block',
         '#events' => $events,
-        '#view' => $view,
-        '#attached' => array(
-          'library' => array(
+        '#attached' => [
+          'library' => [
             'event_database_pull/event_database_pull',
-          ),
-        ),
-        '#cache' => array(
+          ],
+        ],
+        '#view' => $view,
+        '#cache' => [
           'max-age' => 0,
-        ),
+        ],
       ];
-    } catch (\Exception $ex) {
+    }
+    catch (\Exception $ex) {
+      $this->logger->error($ex->getMessage());
       return [
-        '#type' => 'markup',
-        '#markup' => $ex->getMessage(),
+        '#theme' => 'event_database_block_error',
+        '#message' => $ex->getMessage(),
+        '#cache' => [
+          'max-age' => 0,
+        ],
       ];
     }
   }
 
+  /**
+   * Get event database client query from configuration.
+   *
+   * @param array $config
+   *   The configuration.
+   *
+   * @return array
+   *   The query.
+   */
+  private function getQuery(array $config) {
+    $query = [];
+
+    if (isset($config['items_per_page'])) {
+      $query['items_per_page'] = $config['items_per_page'];
+    }
+
+    if (isset($config['order'])) {
+      $query['order[occurrences.startDate]'] = $config['order'];
+    }
+
+    if (isset($config['query'])) {
+      try {
+        $value = Yaml::parse($config['query']);
+        if (is_array($value)) {
+          $query = array_merge($query, $value);
+        }
+      }
+      catch (ParseException $ex) {
+      }
+    }
+
+    return $query;
+  }
+
+  /**
+   * Get paging view for a collection of events.
+   *
+   * @param \Itk\EventDatabaseClient\Collection $collection
+   *   The collection.
+   *
+   * @return array
+   *   The view.
+   */
+  private function getView(Collection $collection) {
+    $view = [];
+
+    foreach (['first', 'previous', 'next', 'last'] as $key) {
+      $url = $collection->get($key);
+      if ($url) {
+        $info = parse_url($url);
+        if (!empty($info['query'])) {
+          parse_str($info['query'], $query);
+          $view[$key] = Url::fromRoute('event_database_pull.events_list', $query);
+        }
+      }
+    }
+
+    return $view;
+  }
 
   /**
    * {@inheritdoc}
@@ -92,12 +163,51 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface {
   public function blockForm($form, FormStateInterface $form_state) {
     $form = parent::blockForm($form, $form_state);
     $config = $this->getConfiguration();
-    $form['query'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Query'),
-      '#description' => t('A query string'),
-      '#default_value' => isset($config['query']) ? $config['query'] : '',
-    );
+
+    $form['list'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Event list'),
+      '#tree' => TRUE,
+
+      'inherit_module_configuration' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Inherit module event list configuration'),
+        '#description' => $this->t('If set, the settings below will be added on top of the module configuration. Otherwise, the module configuration will be ignored.'),
+        '#default_value' => !isset($config['inherit_module_configuration']) || $config['inherit_module_configuration'],
+      ],
+
+      'items_per_page' => [
+        '#type' => 'number',
+        '#title' => $this->t('Number of events'),
+        '#description' => t('The number of events to display'),
+        '#default_value' => isset($config['items_per_page']) ? $config['items_per_page'] : 5,
+        '#size' => 5,
+      ],
+
+      'order' => [
+        '#type' => 'radios',
+        '#title' => $this->t('Order'),
+        '#default_value' => isset($config['order']) ? $config['order'] : 'ASC',
+        '#options' => [
+          'ASC' => $this->t('Show first upcoming first'),
+          'DESC' => $this->t('Show first upcoming last'),
+        ],
+      ],
+
+      'query' => [
+        '#type' => 'textarea',
+        '#title' => $this->t('Query'),
+        '#default_value' => $config['query'],
+        '#description' => $this->t('Query parameters (YAML) to add to the Event database query'),
+      ],
+
+      'show_all_events_link' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Show all events link'),
+        '#description' => $this->t('If set, shows a link to the events page.'),
+        '#default_value' => !isset($config['show_all_events_link']) || $config['show_all_events_link'],
+      ],
+    ];
 
     return $form;
   }
@@ -106,7 +216,12 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface {
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $this->setConfigurationValue('query', $form_state->getValue('query'));
+    $settings = $form_state->getValues('list');
+    $this->setConfigurationValue('inherit_module_configuration', $settings['list']['inherit_module_configuration']);
+    $this->setConfigurationValue('items_per_page', $settings['list']['items_per_page']);
+    $this->setConfigurationValue('order', $settings['list']['order']);
+    $this->setConfigurationValue('query', $settings['list']['query']);
+    $this->setConfigurationValue('show_all_events_link', $settings['list']['show_all_events_link']);
   }
+
 }
-?>

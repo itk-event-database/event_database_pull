@@ -5,7 +5,8 @@
     "keywords": ["Drupal"],
     "license": "GPL-2.0+",
     "require": {
-        "itk-event-database/event-database-client": "dev-master"
+        "itk-event-database/event-database-client": "~0",
+        "league/uri": "^4.1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

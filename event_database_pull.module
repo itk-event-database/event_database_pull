@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Functions related to event database pull module
+ */
 
 /**
  *  Implements hook_theme().
@@ -16,10 +20,20 @@ function event_database_pull_theme($existing, $type, $theme, $path) {
         'event' => [],
       ],
     ],
+    'event_database_pull_error' => [
+      'variables' => [
+        'message' => [],
+      ],
+    ],
     'event_database_block' => [
       'variables' => [
         'events' => [],
         'view' => [],
+      ],
+    ],
+    'event_database_block_error' => [
+      'variables' => [
+        'message' => [],
       ],
     ],
   ];

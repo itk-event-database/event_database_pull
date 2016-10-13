@@ -2,27 +2,39 @@
 
 namespace Drupal\event_database_pull\Controller;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
+use Drupal\event_database_pull\Service\EventDatabase;
+use Itk\EventDatabaseClient\Collection;
+use League\Uri\Components\Query;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Itk\EventDatabaseClient\Client;
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
-use DateTimeZone;
-use DateTime;
 
+/**
+ * Event database controller.
+ */
 class EventController extends ControllerBase {
   /**
-   * @var \Drupal\Core\Config\ImmutableConfig
+   * The event database service.
+   *
+   * @var EventDatabase
    */
-  protected $configuration;
+  protected $eventDatabase;
+
+  /**
+   * A logger.
+   *
+   * @var LoggerInterface
+   */
+  protected $logger;
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(ConfigFactoryInterface $configFactory) {
-    $this->configuration = $configFactory->get('event_database_pull.settings');
+  public function __construct(EventDatabase $eventDatabase, LoggerInterface $logger) {
+    $this->eventDatabase = $eventDatabase;
+    $this->logger = $logger;
   }
 
   /**
@@ -30,146 +42,120 @@ class EventController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('config.factory')
+      $container->get('event_database_pull.event_database'),
+      $container->get('event_database_pull.logger')
     );
   }
 
   /**
+   * List events.
+   *
    * @return array
+   *   The return value!
    */
   public function listAction(Request $request) {
-    \Drupal::service('page_cache_kill_switch')->trigger();
-
     try {
-      $client = $this->getClient();
       $query = $this->getListQuery($request);
-      $result = $client->getEvents($query);
+      $result = $this->eventDatabase->getEvents($query);
       $events = $result->getItems();
-
-      // Add samedate variable to all occurences.
-      $DateTimeZoneUTC = new DateTimeZone('UTC');
-
-      foreach ($events as $event_key => $event) {
-        foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
-          $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
-          $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
-          if ($startDate && $endDate) {
-            $startdate = \Drupal::service('date.formatter')
-              ->format($startDate->getTimestamp(), 'custom', 'dmY');
-            $enddate = \Drupal::service('date.formatter')
-              ->format($endDate->getTimestamp(), 'custom', 'dmY');
-            $occurrence->samedate = ($startdate == $enddate);
-          }
-        }
-      }
-
-      // @todo Fix bug in pager. (Assumes wrong path)
-      $view = array_filter([
-        'first' => $result->getFirst(),
-        'previous' => $result->getPrevious(),
-        'next' => $result->getNext(),
-        'last' => $result->getLast(),
-      ]);
+      $view = $this->getView($result);
 
       return [
         '#theme' => 'event_database_pull_event_list',
         '#events' => $events,
         '#view' => $view,
-        '#attached' => array(
-          'library' => array(
+        '#attached' => [
+          'library' => [
             'event_database_pull/event_database_pull',
-          ),
-        ),
-        '#cache' => array(
+          ],
+        ],
+        '#cache' => [
           'max-age' => 0,
-        ),
+        ],
       ];
-    } catch (\Exception $ex) {
-      return [
-        '#type' => 'markup',
-        '#markup' => $ex->getMessage(),
-      ];
+    }
+    catch (\Exception $ex) {
+      return $this->errorAction($ex);
     }
   }
 
   /**
-   * @return \Itk\EventDatabaseClient\Client
-   */
-  private function getClient() {
-    $url = $this->configuration->get('api.url');
-    $username = $this->configuration->get('api.username');
-    $password = $this->configuration->get('api.password');
-    $client = new Client($url, $username, $password);
-
-    return $client;
-  }
-
-  /**
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   * @return array|mixed
-   */
-  private function getListQuery(Request $request) {
-    $query = [];
-
-    $configQuery = $this->configuration->get('list.query');
-    if ($configQuery) {
-      try {
-        $query = Yaml::parse($configQuery);
-      } catch (ParseException $ex) {
-        $query = [];
-      }
-    }
-
-    $query = array_merge($query, $request->query->all());
-
-    return $query;
-  }
-
-  /**
-   * @param $id
+   * Show a event details.
+   *
+   * @param string $id
+   *   The event id.
+   *
    * @return array
+   *   The return value!
    */
   public function showAction($id) {
     \Drupal::service('page_cache_kill_switch')->trigger();
 
-    $config = \Drupal::config('event_database_pull.settings');
-    $url = $config->get('api.url');
-    $username = $config->get('api.username');
-    $password = $config->get('api.password');
-
     try {
-      $client = new Client($url, $username, $password);
-      $event = $client->readEvent($id);
-
-      // Add samedate variable to all occurences.
-      $DateTimeZoneUTC = new DateTimeZone('UTC');
-
-      foreach($event->getOccurrences() as $occurrence_key => $occurrence) {
-        $startDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('startDate'), $DateTimeZoneUTC);
-        $endDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00', $occurrence->get('endDate'), $DateTimeZoneUTC);
-        if ($startDate && $endDate) {
-          $startdate = \Drupal::service('date.formatter')
-            ->format($startDate->getTimestamp(), 'custom', 'dmY');
-          $enddate = \Drupal::service('date.formatter')
-            ->format($endDate->getTimestamp(), 'custom', 'dmY');
-          $occurrence->samedate = ($startdate == $enddate);
-        }
-      }
+      $event = $this->eventDatabase->getEvent($id);
 
       return [
         '#theme' => 'event_database_pull_event_details',
         '#event' => $event,
-        '#attached' => array(
-          'library' => array(
+        '#attached' => [
+          'library' => [
             'event_database_pull/event_database_pull',
-          ),
-        ),
-      ];
-    } catch (\Exception $ex) {
-      return [
-        '#type' => 'markup',
-        '#markup' => $ex->getMessage(),
+          ],
+        ],
       ];
     }
+    catch (\Exception $ex) {
+      return $this->errorAction($ex);
+    }
   }
+
+  private function errorAction(\Exception $ex) {
+    $this->logger->error($ex->getMessage());
+    return [
+      '#theme' => 'event_database_pull_error',
+      '#message' => $ex->getMessage(),
+      '#cache' => [
+        'max-age' => 0,
+      ],
+    ];
+  }
+
+  /**
+   * Get paging view for a collection of events.
+   *
+   * @param \Itk\EventDatabaseClient\Collection $collection
+   *   The collection.
+   *
+   * @return array
+   *   The view.
+   */
+  private function getView(Collection $collection) {
+    $view = [];
+
+    foreach (['first', 'previous', 'next', 'last'] as $key) {
+      $url = $collection->get($key);
+      if ($url) {
+        $info = parse_url($url);
+        if (!empty($info['query'])) {
+          parse_str($info['query'], $query);
+          $view[$key] = Url::fromRoute('event_database_pull.events_list', $query);
+        }
+      }
+    }
+
+    return $view;
+  }
+
+  /**
+   * Get list query from request.
+   *
+   * @return array
+   *   The query.
+   */
+  private function getListQuery(Request $request) {
+    $query = new Query($request->getQueryString());
+
+    return $query->toArray();
+  }
+
 }
