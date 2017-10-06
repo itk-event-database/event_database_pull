@@ -8,3 +8,9 @@ services:
     arguments:
       - "@config.factory"
       - "@event_database_pull.logger"
+
+  event_database_pull.oembed:
+    arguments: ['@renderer']
+    class: Drupal\event_database_pull\TwigExtension\Oembed
+    tags:
+      - { name: twig.extension }

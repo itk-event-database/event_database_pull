@@ -12,9 +12,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Event database controller.
+ * Event database occurrence controller.
  */
-class EventController extends ControllerBase {
+class OccurrenceController extends ControllerBase {
   /**
    * The event database service.
    *
@@ -56,13 +56,13 @@ class EventController extends ControllerBase {
   public function listAction(Request $request) {
     try {
       $query = $this->getListQuery($request);
-      $result = $this->eventDatabase->getEvents($query);
-      $events = $result->getItems();
+      $result = $this->eventDatabase->getOccurrences($query);
+      $occurrences = $result->getItems();
       $view = $this->getView($result);
-
+      
       return [
-        '#theme' => 'event_database_pull_event_list',
-        '#events' => $events,
+        '#theme' => 'event_database_pull_occurrences_list',
+        '#occurrences' => $occurrences,
         '#view' => $view,
         '#attached' => [
           'library' => [
@@ -80,10 +80,10 @@ class EventController extends ControllerBase {
   }
 
   /**
-   * Show a event details.
+   * Show a occurrence details.
    *
    * @param string $id
-   *   The event id.
+   *   The occurrence id.
    *
    * @return array
    *   The return value!
@@ -92,11 +92,11 @@ class EventController extends ControllerBase {
     \Drupal::service('page_cache_kill_switch')->trigger();
 
     try {
-      $event = $this->eventDatabase->getEvent($id);
-      
+      $occurrence = $this->eventDatabase->getOccurrence($id);
+
       return [
-        '#theme' => 'event_database_pull_event_details',
-        '#event' => $event,
+        '#theme' => 'event_database_pull_occurrence_details',
+        '#occurrence' => $occurrence,
         '#attached' => [
           'library' => [
             'event_database_pull/event_database_pull',
@@ -110,17 +110,17 @@ class EventController extends ControllerBase {
   }
 
   /**
-   * Show an event title
+   * Show an occurrence title
    *
    * @param string $id
-   *   The event id.
+   *   The occurrence id.
    * @return string
-   *  The event title.
+   *  The event title of the occurrence.
    */
   public function showTitle($id) {
-    $event = $this->eventDatabase->getEvent($id);
+    $occurrence = $this->eventDatabase->getOccurrence($id);
 
-    return $event->getName();
+    return $occurrence->getEvent()->getName();
   }
 
   private function errorAction(\Exception $ex) {
@@ -152,7 +152,7 @@ class EventController extends ControllerBase {
         $info = parse_url($url);
         if (!empty($info['query'])) {
           parse_str($info['query'], $query);
-          $view[$key] = Url::fromRoute('event_database_pull.events_list', $query);
+          $view[$key] = Url::fromRoute('event_database_pull.occurrences_list', $query);
         }
       }
     }

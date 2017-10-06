@@ -1,0 +1,23 @@
+{#
+/**
+ * @file
+ * Display an element from event database.
+ *
+ * Available variables:
+ * - occurrence: The occurences of the event
+ */
+#}
+
+<article class="occurrence-details">
+	<h1>{{ occurrence.event.name }}</h1>
+	<div>Place: {{ occurrence.place.name }}</div>
+	<div>Price: {{ occurrence.ticketPriceRange }}</div>
+	<div>
+		<span class="occurence--date"> {{ occurrence.startDate | date('j/n Y') }}</span>
+		{% if occurrence.get('samedate') == FALSE and occurrence.startDate < occurrence.endDate %}
+			<span class="occurence--separator"> {{ 'to' | t }} </span><span class="occurence--end-date">{{ occurrence.endDate | date('j/n Y')}}</span>
+		{% endif %}
+	</div>
+</article>
+
+<a href="{{ path('event_database_pull.occurrences_list') }}">{{ 'Back to list' | t }}</a>

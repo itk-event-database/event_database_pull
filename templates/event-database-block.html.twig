@@ -19,14 +19,14 @@
 					{% for occurrence in event.occurrences %}
 						<div class="occurrence">
 							<div class="occurence--date-wrapper">
-								{% include '@event_database_pull/calendar.svg' %} <span class="occurence--date"> {{ occurrence.startDate | date('j/n') }}</span>
+								<span class="occurence--date"> {{ occurrence.startDate | date('j/n') }}</span>
 								{% if occurrence.get('samedate') == false and occurrence.startDate < occurrence.endDate %}
 								<span class="occurence--separator"> {{ 'to' | t }} </span><span class="occurence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
 								{% endif %}
 								<span class="occurence--year">- {{ occurrence.startDate | date('Y') }}</span>
 							</div>
 							<div class="occurence--time-wrapper">
-								{% include '@event_database_pull/time.svg' %} <span> {{ occurrence.startDate | date('H:i') }}</span>
+								<span> {{ occurrence.startDate | date('H:i') }}</span>
 							</div>
 							{% if occurrence.place and occurrence.place.name %}
 								<div class="occurence--place-wrapper">
