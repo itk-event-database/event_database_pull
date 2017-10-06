@@ -1,0 +1,40 @@
+<?php
+namespace Drupal\event_database_pull\TwigExtension;
+
+
+class Oembed extends \Twig_Extension {
+
+  /**
+  * Generates a list of all Twig filters that this extension defines.
+  */
+  public function getFilters() {
+    return [
+      new \Twig_SimpleFilter('oembed', array($this, 'oembed')),
+    ];
+  }
+
+  /**
+  * Gets a unique identifier for this Twig extension.
+  */
+  public function getName() {
+    return 'oembed.twig_extension';
+  }
+
+  /**
+  * Replaces all numbers from the string.
+  */
+  public static function oembed($url) {
+    $output = null;
+    $oembed_endpoint = 'http://vimeo.com/api/oembed';
+    if ($url) {
+      $json_url = $oembed_endpoint . '.json?url=' . rawurlencode($url) . '&width=640';
+      $curl = curl_init($json_url);
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+      curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+      $output = json_decode(curl_exec($curl));
+      curl_close($curl);
+    }
+    return html_entity_decode($output->html);
+  }
+}

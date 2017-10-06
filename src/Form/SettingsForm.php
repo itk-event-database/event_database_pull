@@ -80,8 +80,15 @@ class SettingsForm extends ConfigFormBase {
 
       'query' => [
         '#type' => 'textarea',
-        '#title' => $this->t('Query'),
+        '#title' => $this->t('Event query'),
         '#default_value' => $config->get('list.query'),
+        '#description' => $this->t('Query parameters (YAML) to add to the Event database query'),
+      ],
+
+      'query_occurrences' => [
+        '#type' => 'textarea',
+        '#title' => $this->t('Occurrences query'),
+        '#default_value' => $config->get('list.query_occurrences'),
         '#description' => $this->t('Query parameters (YAML) to add to the Event database query'),
       ],
     ];
@@ -117,6 +124,7 @@ class SettingsForm extends ConfigFormBase {
     $config->set('list.items_per_page', $form_state->getValue(['list', 'items_per_page']));
     $config->set('list.order', $form_state->getValue(['list', 'order']));
     $config->set('list.query', $form_state->getValue(['list', 'query']));
+    $config->set('list.query_occurrences', $form_state->getValue(['list', 'query_occurrences']));
 
     $config->save();
     parent::submitForm($form, $form_state);
