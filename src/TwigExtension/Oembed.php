@@ -24,10 +24,19 @@ class Oembed extends \Twig_Extension {
   * Replaces all numbers from the string.
   */
   public static function oembed($url) {
-    $output = null;
-    $oembed_endpoint = 'http://vimeo.com/api/oembed';
-    if ($url) {
-      $json_url = $oembed_endpoint . '.json?url=' . rawurlencode($url) . '&width=640';
+    $oembed_endpoint = '';
+    $json_url = '';
+    $output = FALSE;
+    if (strpos($url, 'youtube') !== FALSE) {
+      $oembed_endpoint = 'http://www.youtube.com/oembed';
+      $json_url = $oembed_endpoint . '?url=' . rawurlencode($url). '&format=json';
+    }
+    if (strpos($url, 'vimeo') !== FALSE) {
+      $oembed_endpoint = 'http://vimeo.com/api/oembed';
+      $json_url = $oembed_endpoint . '.json?url=' . rawurlencode($url);
+    }
+
+    if ($url && $oembed_endpoint) {
       $curl = curl_init($json_url);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
       curl_setopt($curl, CURLOPT_TIMEOUT, 30);
@@ -35,6 +44,6 @@ class Oembed extends \Twig_Extension {
       $output = json_decode(curl_exec($curl));
       curl_close($curl);
     }
-    return html_entity_decode($output->html);
+    return ($output) ? html_entity_decode($output->html) : '';
   }
 }

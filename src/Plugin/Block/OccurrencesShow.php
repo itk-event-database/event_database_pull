@@ -61,7 +61,6 @@ class OccurrencesShow extends BlockBase implements BlockPluginInterface, Contain
    * {@inheritdoc}
    */
   public function build() {
-    // Setup query array.
     $config = $this->getConfiguration();
     $query = $this->getQuery($config);
 
