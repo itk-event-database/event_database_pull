@@ -54,11 +54,21 @@ class OccurrenceController extends ControllerBase {
    *   The return value!
    */
   public function listAction(Request $request) {
+    $images = array();
     try {
       $query = $this->getListQuery($request);
       $result = $this->eventDatabase->getOccurrences($query);
       $occurrences = $result->getItems();
       $view = $this->getView($result);
+
+      foreach ($occurrences as $key => $occurrence) {
+        $images[$key] = array(
+          '#theme' => 'imagecache_external',
+          '#style_name' => 'medium',
+          '#uri' => $occurrence->getEvent()->getImage(),
+          '#alt' => $occurrence->getEvent()->getName(),
+        );
+      }
       
       return [
         '#theme' => 'event_database_pull_occurrences_list',
@@ -72,6 +82,7 @@ class OccurrenceController extends ControllerBase {
         '#cache' => [
           'max-age' => 0,
         ],
+        '#images' => $images,
       ];
     }
     catch (\Exception $ex) {
@@ -93,6 +104,12 @@ class OccurrenceController extends ControllerBase {
 
     try {
       $occurrence = $this->eventDatabase->getOccurrence($id);
+      $image = array(
+        '#theme' => 'imagecache_external',
+        '#style_name' => 'large',
+        '#uri' => $occurrence->getEvent()->getImage(),
+        '#alt' => $occurrence->getEvent()->getName(),
+      );
 
       return [
         '#theme' => 'event_database_pull_occurrence_details',
@@ -102,6 +119,7 @@ class OccurrenceController extends ControllerBase {
             'event_database_pull/event_database_pull',
           ],
         ],
+        '#image' => $image
       ];
     }
     catch (\Exception $ex) {

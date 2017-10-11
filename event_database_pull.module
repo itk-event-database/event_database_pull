@@ -13,22 +13,26 @@ function event_database_pull_theme($existing, $type, $theme, $path) {
       'variables' => [
         'events' => [],
         'view' => [],
+        'images' => [],
       ],
     ],
     'event_database_pull_occurrences_list' => [
       'variables' => [
         'occurrences' => [],
         'view' => [],
+        'images' => [],
       ],
     ],
     'event_database_pull_event_details' => [
       'variables' => [
         'event' => [],
+        'image' => [],
       ],
     ],
     'event_database_pull_occurrence_details' => [
       'variables' => [
         'occurrence' => [],
+        'image' => [],
       ],
     ],
     'event_database_pull_error' => [
@@ -40,12 +44,14 @@ function event_database_pull_theme($existing, $type, $theme, $path) {
       'variables' => [
         'events' => [],
         'view' => [],
+        'images' => [],
       ],
     ],
     'event_database_occurrences_block' => [
       'variables' => [
         'occurrences' => [],
         'view' => [],
+        'images' => [],
       ],
     ],
     'event_database_block_error' => [
