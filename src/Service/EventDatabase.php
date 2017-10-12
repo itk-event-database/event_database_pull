@@ -214,8 +214,11 @@ class EventDatabase {
    * @param array $userQuery
    *   The initial query.
    *
+   * @param boolean $mergeQuery
+   *   Whether to merge the query query.
+   *
    * @return array
-   *   The query;
+   *   The query.
    */
   private function getOccurrencesListQuery(array $userQuery, $mergeQuery) {
     $query = [];
@@ -248,5 +251,4 @@ class EventDatabase {
 
     return $query;
   }
-
 }

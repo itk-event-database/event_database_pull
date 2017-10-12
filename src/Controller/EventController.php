@@ -54,11 +54,22 @@ class EventController extends ControllerBase {
    *   The return value!
    */
   public function listAction(Request $request) {
+    $images = array();
+
     try {
       $query = $this->getListQuery($request);
       $result = $this->eventDatabase->getEvents($query);
       $events = $result->getItems();
       $view = $this->getView($result);
+
+      foreach ($events as $key => $event) {
+        $images[$key] = array(
+          '#theme' => 'imagecache_external',
+          '#style_name' => 'medium',
+          '#uri' => $event->getImage(),
+          '#alt' => $event->getName(),
+        );
+      }
 
       return [
         '#theme' => 'event_database_pull_event_list',
@@ -72,6 +83,7 @@ class EventController extends ControllerBase {
         '#cache' => [
           'max-age' => 0,
         ],
+        '#images' => $images,
       ];
     }
     catch (\Exception $ex) {
@@ -80,7 +92,7 @@ class EventController extends ControllerBase {
   }
 
   /**
-   * Show a event details.
+   * Show an event details.
    *
    * @param string $id
    *   The event id.
@@ -93,7 +105,13 @@ class EventController extends ControllerBase {
 
     try {
       $event = $this->eventDatabase->getEvent($id);
-      
+      $image = array(
+        '#theme' => 'imagecache_external',
+        '#style_name' => 'medium',
+        '#uri' => $event->getImage(),
+        '#alt' => $event->getName(),
+      );
+
       return [
         '#theme' => 'event_database_pull_event_details',
         '#event' => $event,
@@ -102,6 +120,7 @@ class EventController extends ControllerBase {
             'event_database_pull/event_database_pull',
           ],
         ],
+        '#image' => $image,
       ];
     }
     catch (\Exception $ex) {

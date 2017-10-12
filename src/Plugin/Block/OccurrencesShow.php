@@ -61,16 +61,24 @@ class OccurrencesShow extends BlockBase implements BlockPluginInterface, Contain
    * {@inheritdoc}
    */
   public function build() {
-    // Setup query array.
     $config = $this->getConfiguration();
     $query = $this->getQuery($config);
+    $images = array();
 
     try {
       $result = $this->eventDatabase->getOccurrences($query, $config['inherit_module_configuration']);
       $occurrences = $result->getItems();
       $view = $this->getView($result);
       $view['more_link'] = $config['show_all_occurrences_link'];
-      
+
+      foreach ($occurrences as $key => $occurrence) {
+        $images[$key] = array(
+          '#theme' => 'imagecache_external',
+          '#style_name' => 'medium',
+          '#uri' => $occurrence->getEvent()->getImage(),
+          '#alt' => $occurrence->getEvent()->getName(),
+        );
+      }
       return [
         '#theme' => 'event_database_occurrences_block',
         '#occurrences' => $occurrences,
@@ -83,6 +91,7 @@ class OccurrencesShow extends BlockBase implements BlockPluginInterface, Contain
         '#cache' => [
           'max-age' => 0,
         ],
+        '#images' => $images,
       ];
     }
     catch (\Exception $ex) {

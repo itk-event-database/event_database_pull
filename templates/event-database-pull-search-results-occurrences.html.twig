@@ -16,25 +16,25 @@
     <article class="occurrence-list--occurrence">
       <h1>{{ occurrence.event.name }}</h1>
       <div class="event-list--description">{{ occurrence.event.description | raw }}</div>
-        <div class="event-list--occurrences">
-          <div class="occurrence">
-            <div class="occurrence--date-wrapper">
-              <span class="occurrence--date"> {{ occurrence.startDate | date('j/n') }}</span>
-              {% if occurrence.get('samedate') == FALSE and occurrence.startDate < occurrence.endDate %}
-                <span class="occurrence--separator"> {{ 'to' | t }} </span><span class="occurrence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
-              {% endif %}
-              <span class="occurrence--year">- {{ occurrence.startDate | date('Y') }}</span>
-            </div>
-            <div class="occurrence--time-wrapper">
-              <span> {{ occurrence.startDate | date('H:i') }}</span>
-            </div>
-            {% if occurrence.place and occurrence.place.name %}
-              <div class="occurrence--place-wrapper">
-                <span class="occurrence--label">{{ 'Place' | t }}: </span><span class="occurrence--place">{{ occurrence.place.name }}</span>
-              </div>
+      <div class="event-list--occurrences">
+        <div class="occurrence">
+          <div class="occurrence--date-wrapper">
+            <span class="occurrence--date"> {{ occurrence.startDate | date('j/n') }}</span>
+            {% if occurrence.get('samedate') == FALSE and occurrence.startDate < occurrence.endDate %}
+              <span class="occurrence--separator"> {{ 'to' | t }} </span><span class="occurrence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
             {% endif %}
+            <span class="occurrence--year">- {{ occurrence.startDate | date('Y') }}</span>
           </div>
+          <div class="occurrence--time-wrapper">
+            <span> {{ occurrence.startDate | date('H:i') }}</span>
+          </div>
+          {% if occurrence.place and occurrence.place.name %}
+            <div class="occurrence--place-wrapper">
+              <span class="occurrence--label">{{ 'Place' | t }}: </span><span class="occurrence--place">{{ occurrence.place.name }}</span>
+            </div>
+          {% endif %}
         </div>
+      </div>
     </article>
   {% endfor %}
 

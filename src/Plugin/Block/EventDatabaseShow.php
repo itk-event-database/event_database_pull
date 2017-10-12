@@ -64,12 +64,22 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
     // Setup query array.
     $config = $this->getConfiguration();
     $query = $this->getQuery($config);
+    $images = array();
 
     try {
       $result = $this->eventDatabase->getEvents($query, $config['inherit_module_configuration']);
       $events = $result->getItems();
       $view = $this->getView($result);
       $view['more_link'] = $config['show_all_events_link'];
+
+      foreach ($events as $key => $event) {
+        $images[$key] = array(
+          '#theme' => 'imagecache_external',
+          '#style_name' => 'medium',
+          '#uri' => $event->getImage(),
+          '#alt' => $event->getName(),
+        );
+      }
 
       return [
         '#theme' => 'event_database_block',
@@ -83,6 +93,7 @@ class EventDatabaseShow extends BlockBase implements BlockPluginInterface, Conta
         '#cache' => [
           'max-age' => 0,
         ],
+        '#images' => $images,
       ];
     }
     catch (\Exception $ex) {
