@@ -54,6 +54,8 @@ class OccurrenceController extends ControllerBase {
    *   The return value!
    */
   public function listAction(Request $request) {
+    $form = \Drupal::formBuilder()->getForm('Drupal\event_database_pull\Form\SearchForm');
+
     $images = array();
     try {
       $query = $this->getListQuery($request);
@@ -83,6 +85,7 @@ class OccurrenceController extends ControllerBase {
           'max-age' => 0,
         ],
         '#images' => $images,
+        '#searchBox' => $form,
       ];
     }
     catch (\Exception $ex) {
