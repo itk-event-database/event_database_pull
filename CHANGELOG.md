@@ -1,5 +1,8 @@
 # Changelog - Event Database pull
 
+### 1.1.2
+* Added support for search on occurrences page list
+
 ### 1.1.1
 * Oembed twig filter
 * drupal/imagecache_external dependency
