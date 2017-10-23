@@ -1,0 +1,57 @@
+{#
+/**
+* @file
+* Display a list of elements from event database.
+
+* Available variables:
+* - view:
+* - occurrences: All events from source
+* - images: Render array of cached images. Structured with the same array key as the occurrences array.
+*/
+#}
+
+<h1 class="content--header">{{ 'All occurrences' | t }}</h1>
+<section class="occurrence-list">
+  {% for occurrence in occurrences %}
+    <article class="occurrence-list--occurrence">
+      <h1>{{ occurrence.event.name }}</h1>
+      <div class="event-list--description">{{ occurrence.event.description | raw }}</div>
+      <div class="event-list--occurrences">
+        <div class="occurrence">
+          <div class="occurrence--date-wrapper">
+            <span class="occurrence--date"> {{ occurrence.startDate | date('j/n') }}</span>
+            {% if occurrence.get('samedate') == FALSE and occurrence.startDate < occurrence.endDate %}
+              <span class="occurrence--separator"> {{ 'to' | t }} </span><span class="occurrence--end-date">{{ occurrence.endDate | date('j/n')}}</span>
+            {% endif %}
+            <span class="occurrence--year">- {{ occurrence.startDate | date('Y') }}</span>
+          </div>
+          <div class="occurrence--time-wrapper">
+            <span> {{ occurrence.startDate | date('H:i') }}</span>
+          </div>
+          {% if occurrence.place and occurrence.place.name %}
+            <div class="occurrence--place-wrapper">
+              <span class="occurrence--label">{{ 'Place' | t }}: </span><span class="occurrence--place">{{ occurrence.place.name }}</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+
+  {% if view %}
+    <span class="pager">
+			{% if view.first %}
+        <span class="pager__item pager__item--first"><a href="{{ view.first }}">{{ 'First' | t }}</a></span>
+      {% endif %}
+      {% if view.previous %}
+        <span class="pager__item pager__item--previous"><a href="{{ view.previous }}">{{ 'Previous' | t }}</a></span>
+      {% endif %}
+      {% if view.next %}
+        <span class="pager__item pager__item--next"><a href="{{ view.next }}">{{ 'Next' | t }}</a></span>
+      {% endif %}
+      {% if view.last %}
+        <span class="pager__item pager__item--last"><a href="{{ view.last }}">{{ 'Last' | t }}</a></span>
+      {% endif %}
+		</span>
+  {% endif %}
+</section>
