@@ -3,9 +3,7 @@
 namespace Drupal\event_database_pull\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Url;
 use Drupal\event_database_pull\Service\EventDatabase;
-use Itk\EventDatabaseClient\Collection;
 use League\Uri\Components\Query;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -55,13 +53,17 @@ class OccurrenceController extends ControllerBase {
    */
   public function listAction(Request $request) {
     $form = \Drupal::formBuilder()->getForm('Drupal\event_database_pull\Form\SearchForm');
-
     $images = array();
     try {
       $query = $this->getListQuery($request);
+      if(array_key_exists('search', $query)) {
+        $query['event.name'] = $query['search'];
+        unset($query['search']);
+      }
       $result = $this->eventDatabase->getOccurrences($query);
       $occurrences = $result->getItems();
-      $view = $this->getView($result);
+      $number_items = $result->get('totalItems');
+      pager_default_initialize($number_items, 20);
 
       foreach ($occurrences as $key => $occurrence) {
         $images[$key] = array(
@@ -71,11 +73,10 @@ class OccurrenceController extends ControllerBase {
           '#alt' => $occurrence->getEvent()->getName(),
         );
       }
-      
-      return [
+      $render = [];
+      $render[] = [
         '#theme' => 'event_database_pull_occurrences_list',
         '#occurrences' => $occurrences,
-        '#view' => $view,
         '#attached' => [
           'library' => [
             'event_database_pull/event_database_pull',
@@ -86,7 +87,9 @@ class OccurrenceController extends ControllerBase {
         ],
         '#images' => $images,
         '#searchBox' => $form,
+        '#pager' => ['#type' => 'pager'],
       ];
+      return $render;
     }
     catch (\Exception $ex) {
       return $this->errorAction($ex);
@@ -156,32 +159,6 @@ class OccurrenceController extends ControllerBase {
   }
 
   /**
-   * Get paging view for a collection of events.
-   *
-   * @param \Itk\EventDatabaseClient\Collection $collection
-   *   The collection.
-   *
-   * @return array
-   *   The view.
-   */
-  private function getView(Collection $collection) {
-    $view = [];
-
-    foreach (['first', 'previous', 'next', 'last'] as $key) {
-      $url = $collection->get($key);
-      if ($url) {
-        $info = parse_url($url);
-        if (!empty($info['query'])) {
-          parse_str($info['query'], $query);
-          $view[$key] = Url::fromRoute('event_database_pull.occurrences_list', $query);
-        }
-      }
-    }
-
-    return $view;
-  }
-
-  /**
    * Get list query from request.
    *
    * @return array
@@ -192,5 +169,4 @@ class OccurrenceController extends ControllerBase {
 
     return $query->toArray();
   }
-
 }

@@ -1,5 +1,9 @@
 # Changelog - Event Database pull
 
+### 1.1.3
+* Fixed bugs in search
+* Added pager on occurrences list
+
 ### 1.1.2
 * Added support for search on occurrences page list
 
