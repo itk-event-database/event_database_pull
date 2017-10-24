@@ -56,23 +56,16 @@ class SearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $search = \Drupal::request()->query->get('search');
     $form['search'] = array(
       '#type' => 'textfield',
       '#placeholder' => t('Search for events'),
+      '#default_value' => !empty($search) ? $search : NULL,
     );
 
     $form['submit'] = array(
-      '#type' => 'button',
+      '#type' => 'submit',
       '#value' => t('Search'),
-      '#ajax' =>[
-        'callback' => [$this, 'submitForm'],
-        'event' => 'click',
-        'wrapper' => 'occurrence-list',
-        'progress' => [
-          'type' => 'throbber',
-          'message' => t('Searching..'),
-        ],
-      ]
     );
 
     return $form;
@@ -82,70 +75,15 @@ class SearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $images = array();
     $query = array();
     if (!empty($form_state->getValue('search'))) {
-      $query['event.name'] = $form_state->getValue('search');
+      $query['search'] = $form_state->getValue('search');
+      $url = Url::fromRoute('event_database_pull.occurrences_list', [], ['query' => ['search' => $query['search']]]);
     }
-
-    $result = $this->eventDatabase->getOccurrences($query);
-    $occurrences = $result->getItems();
-    $view = $this->getView($result);
-
-    foreach ($occurrences as $key => $occurrence) {
-      $images[$key] = array(
-        '#theme' => 'imagecache_external',
-        '#style_name' => 'medium',
-        '#uri' => $occurrence->getEvent()->getImage(),
-        '#alt' => $occurrence->getEvent()->getName(),
-      );
+    else {
+      $url = Url::fromRoute('event_database_pull.occurrences_list');
     }
-
-    $search_render_array = [
-      '#theme' => 'event_database_pull_search_results_occurrences',
-      '#occurrences' => $occurrences,
-      '#view' => $view,
-      '#attached' => [
-        'library' => [
-          'event_database_pull/event_database_pull',
-        ],
-      ],
-      '#cache' => [
-        'max-age' => 0,
-      ],
-      '#images' => $images,
-      '#searchBox' => $form,
-    ];
-    $html = \Drupal::service('renderer')->render($search_render_array);
-    $ajax_response = new AjaxResponse();
-    $ajax_response->addCommand(new HtmlCommand(".occurrence-list", $html));
-    return $ajax_response;
-  }
-
-  /**
-   * Get paging view for a collection of events.
-   *
-   * @param \Itk\EventDatabaseClient\Collection $collection
-   *   The collection.
-   *
-   * @return array
-   *   The view.
-   */
-  private function getView(Collection $collection) {
-    $view = [];
-
-    foreach (['first', 'previous', 'next', 'last'] as $key) {
-      $url = $collection->get($key);
-      if ($url) {
-        $info = parse_url($url);
-        if (!empty($info['query'])) {
-          parse_str($info['query'], $query);
-          $view[$key] = Url::fromRoute('event_database_pull.occurrences_list', $query);
-        }
-      }
-    }
-
-    return $view;
+    $form_state->setRedirectUrl($url);
   }
 }
 ?>

@@ -60,6 +60,10 @@ class EventDatabase {
   public function getOccurrences(array $query, $mergeQuery = TRUE) {
     $client = $this->getClient();
     $query = $this->getOccurrencesListQuery($query, $mergeQuery);
+    // Align Drupals pager to event database query (Drupal starts at 0 event DB at 1)
+    if(array_key_exists('page', $query)){
+      $query['page'] = $query['page'] + 1;
+    }
     $result = $client->getOccurrences($query);
 
     foreach ($result->getItems() as &$occurrence) {

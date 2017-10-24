@@ -46,3 +46,8 @@ Edit `event_database_pull/composer.json` and change `repositories` to look like 
     …
 
 ```
+
+## Further development
+* Lacks support for search on events lists
+* Lacks a proper code review
+* A rewrite of templates to better reflect the available variables
