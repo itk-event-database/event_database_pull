@@ -93,6 +93,19 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
+    $form['item'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Event item'),
+      '#tree' => TRUE,
+
+      'generate_404_on_past_event' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Generate "Page not found" on past event'),
+        '#default_value' => $config->get('item.generate_404_on_past_event'),
+        '#description' => $this->t('Generate "Page not found" when viewing a finished event'),
+      ],
+    ];
+
     return $form;
   }
 
@@ -125,6 +138,8 @@ class SettingsForm extends ConfigFormBase {
     $config->set('list.order', $form_state->getValue(['list', 'order']));
     $config->set('list.query', $form_state->getValue(['list', 'query']));
     $config->set('list.query_occurrences', $form_state->getValue(['list', 'query_occurrences']));
+
+    $config->set('item.generate_404_on_past_event', $form_state->getValue(['item', 'generate_404_on_past_event']));
 
     $config->save();
     parent::submitForm($form, $form_state);

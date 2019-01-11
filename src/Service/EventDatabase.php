@@ -90,7 +90,7 @@ class EventDatabase {
 
     return $occurrence;
   }
-  
+
   /**
    * Get a event details.
    *
@@ -104,9 +104,32 @@ class EventDatabase {
     $client = $this->getClient();
     $event = $client->readEvent($id);
 
+    if ($this->configuration->get('item.generate_404_on_past_event')
+      && $this->isPastEvent($event)) {
+      return null;
+    }
+
     $this->augment($event);
 
     return $event;
+  }
+
+  /**
+   * Decide if an event is in the past.
+   *
+   * @param \Itk\EventDatabaseClient\Item\Event $event
+   *
+   * @return bool
+   */
+  private function isPastEvent(Event $event) {
+    $now = new \DateTime('now', new \DateTimeZone('UTC'));
+    $minEndTime = max(array_map(function ($occurrence) use ($now) {
+      $endtime = $occurrence->getEndDate();
+
+      return $endtime ? new \DateTime($endtime) : $now;
+    }, $event->getOccurrences()));
+
+    return $minEndTime < $now;
   }
 
   /**
