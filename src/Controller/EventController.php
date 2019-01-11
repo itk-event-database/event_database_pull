@@ -10,6 +10,7 @@ use League\Uri\Components\Query;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Event database controller.
@@ -105,6 +106,11 @@ class EventController extends ControllerBase {
 
     try {
       $event = $this->eventDatabase->getEvent($id);
+
+      if (null === $event) {
+        throw new NotFoundHttpException();
+      }
+
       $image = array(
         '#theme' => 'imagecache_external',
         '#style_name' => 'medium',
@@ -122,6 +128,9 @@ class EventController extends ControllerBase {
         ],
         '#image' => $image,
       ];
+    }
+    catch (NotFoundHttpException $notFoundHttpException) {
+      throw $notFoundHttpException;
     }
     catch (\Exception $ex) {
       return $this->errorAction($ex);
