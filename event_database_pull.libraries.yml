@@ -2,3 +2,15 @@ event_database_pull:
   css:
     theme:
       css/event-database-pull.css: {}
+event_database_pull_search:
+  version: VERSION
+  css:
+    theme:
+      css/select2.min.css: {}
+  js:
+     js/select2.min.js: {}
+     js/searchTags.js: {}
+     js/searchEndlessScroll.js: {}
+  dependencies:
+     - core/jquery
+     - core/jquery.ui.datepicker

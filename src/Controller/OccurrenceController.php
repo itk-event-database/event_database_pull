@@ -54,13 +54,16 @@ class OccurrenceController extends ControllerBase {
   public function listAction(Request $request) {
     $form = \Drupal::formBuilder()->getForm('Drupal\event_database_pull\Form\SearchForm');
     $images = array();
+    $query_array = [];
+
     try {
       $query = $this->getListQuery($request);
-      if(array_key_exists('search', $query)) {
-        $query['event.name'] = $query['search'];
-        unset($query['search']);
+      // Add search query on search page.
+      if (\Drupal::routeMatch()->getRouteName() == 'event_database_pull.occurrences_list') {
+        $query_array = $this->buildSearchQuery($query);
       }
-      $result = $this->eventDatabase->getOccurrences($query);
+      
+      $result = $this->eventDatabase->getOccurrences($query_array);
       $occurrences = $result->getItems();
       $number_items = $result->get('totalItems');
       pager_default_initialize($number_items, 20);
@@ -168,5 +171,47 @@ class OccurrenceController extends ControllerBase {
     $query = new Query($request->getQueryString());
 
     return $query->toArray();
+  }
+
+  /**
+   * Build search query for search page.
+   *
+   */
+  private function buildSearchQuery ($query){
+    // Remove empty values
+    foreach ($query as $key => $value) {
+      if(empty($value)) {
+        unset($query[$key]);
+      }
+    }
+    $query_array = [];
+    foreach ($query as $key => $value) {
+      switch ($key){
+        case 'search':
+          $query_array['event.name'] = $value;
+          break;
+        case 'date_from':
+          $value = explode('-', $value);
+          $query_array['startDate[after]'] = implode('-', array_reverse($value)) . 'T00:00:00.000Z';
+          break;
+        case 'date_to':
+          $value = explode('-', $value);
+          $query_array['startDate[before]'] = implode('-', array_reverse($value)) . 'T23:59:59.999Z'; // End of day
+          break;
+        case 'terms_string':
+          $query_array['event.tags'] = [];
+          $terms = explode('_', $value);
+          foreach ($terms as $term_id) {
+            $term = \Drupal\taxonomy\Entity\Term::load($term_id);
+            if (isset($term->field_event_database_tags)) {
+              foreach ($term->field_event_database_tags->getValue() as $tags_query) {
+                $query_array['event.tags'][] = $tags_query['value'];
+              }
+            }
+          }
+          break;
+      }
+    }
+    return $query_array;
   }
 }

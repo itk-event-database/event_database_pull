@@ -74,6 +74,22 @@ class EventDatabase {
   }
 
   /**
+   * Get tags
+   *
+   * @param array $query
+   *   The query to filter tags by.
+   *
+   * @param bool $mergeQuery
+   *   Whether to merge query.
+   */
+  public function getTags(array $query, $mergeQuery = TRUE) {
+    $client = $this->getClient();
+    $query = $this->getTagsListQuery($query, $mergeQuery);
+    $a = 1;
+  }
+
+
+  /**
    * Get an occurrence details.
    *
    * @param string $id
@@ -248,6 +264,38 @@ class EventDatabase {
    *   The query.
    */
   private function getOccurrencesListQuery(array $userQuery, $mergeQuery) {
+    $query = [];
+
+    if ($mergeQuery) {
+      $config = $this->configuration->get('list');
+
+      if (isset($config['items_per_page'])) {
+        $query['items_per_page'] = $config['items_per_page'];
+      }
+
+      if (isset($config['order'])) {
+        $query['order[startDate]'] = $config['order'];
+      }
+
+      if (isset($config['query_occurrences'])) {
+        try {
+          $configQuery = Yaml::parse($config['query_occurrences']);
+          if (is_array($configQuery)) {
+            $query = array_merge($query, $configQuery);
+          }
+        }
+        catch (ParseException $ex) {
+        }
+      }
+    }
+    if ($userQuery) {
+      $query = array_merge($query, $userQuery);
+    }
+
+    return $query;
+  }
+
+  private function getTagsListQuery(array $userQuery, $mergeQuery) {
     $query = [];
 
     if ($mergeQuery) {
