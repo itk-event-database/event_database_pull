@@ -115,6 +115,7 @@ class SearchForm extends FormBase {
     $form['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Search'),
+      '#attributes' => ['disabled' => 'disabled'],
     );
 
     return $form;

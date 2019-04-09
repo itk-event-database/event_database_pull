@@ -26,6 +26,15 @@ function event_database_pull_theme($existing, $type, $theme, $path) {
         'images' => [],
         'searchBox' => [],
         'pager' => [],
+        'nextPage' => [],
+      ],
+    ],
+    'event_database_pull_occurrences_list_next' => [
+      'variables' => [
+        'occurrences' => [],
+        'view' => [],
+        'images' => [],
+        'nextPage' => [],
       ],
     ],
     'event_database_pull_event_details' => [
