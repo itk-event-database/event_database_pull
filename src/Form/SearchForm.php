@@ -118,6 +118,15 @@ class SearchForm extends FormBase {
       '#attributes' => ['disabled' => 'disabled'],
     );
 
+    $form['reset'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'a',
+      '#value' => $this->t('Reset search'),
+      '#attributes' => ['href' => '/events', 'class'=> ['js-reset-search']],
+      '#prefix' => '<div class="reset-search">',
+      '#suffix' => '</div>',
+    ];
+
     return $form;
   }
 
