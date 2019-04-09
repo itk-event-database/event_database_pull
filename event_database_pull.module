@@ -4,6 +4,9 @@
  * Functions related to event database pull module
  */
 
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\Exception\ClientException as GuzzleClientException;
+
 /**
  *  Implements hook_theme().
  */
@@ -23,6 +26,15 @@ function event_database_pull_theme($existing, $type, $theme, $path) {
         'images' => [],
         'searchBox' => [],
         'pager' => [],
+        'nextPage' => [],
+      ],
+    ],
+    'event_database_pull_occurrences_list_next' => [
+      'variables' => [
+        'occurrences' => [],
+        'view' => [],
+        'images' => [],
+        'nextPage' => [],
       ],
     ],
     'event_database_pull_event_details' => [
@@ -62,4 +74,53 @@ function event_database_pull_theme($existing, $type, $theme, $path) {
       ],
     ],
   ];
+}
+
+/**
+ * Set dynamic allowed values for the bundle field.
+ * See https://www.flocondetoile.fr/blog/automatically-provide-options-list-field-type-drupal-8
+ *
+ * @param \Drupal\field\Entity\FieldStorageConfig $definition
+ *   The field definition.
+ * @param \Drupal\Core\Entity\ContentEntityInterface|null $entity
+ *   The entity being created if applicable.
+ * @param bool $cacheable
+ *   Boolean indicating if the results are cacheable.
+ *
+ * @return array
+ *   An array of possible key and value options.
+ *
+ * @see options_allowed_values()
+ */
+function event_database_pull_allowed_values_bundle(Drupal\field\Entity\FieldStorageConfig $definition, Drupal\taxonomy\Entity\Term $entity = NULL, $cacheable) {
+  $options = _event_database_pull_generate_options($entity);
+  return $options;
+}
+
+function _event_database_pull_generate_options($entity) {
+  $options = [];
+  $res = _event_database_pull_request_tags('GET', 'https://api.detskeriaarhus.dk', '/api/tags?items_per_page=100');
+  $tags = json_decode($res->getBody(), true);
+  foreach ($tags['hydra:member'] as $value) {
+    $options[$value['name']] = $value['name'];
+  }
+  while (isset($tags['hydra:view']['hydra:next'])) {
+    $res = _event_database_pull_request_tags('GET', 'https://api.detskeriaarhus.dk', $tags['hydra:view']['hydra:next']);
+    $tags = json_decode($res->getBody(), true);
+    foreach ($tags['hydra:member'] as $value) {
+      $options[$value['name']] = $value['name'];
+    }
+  }
+
+  return $options;
+}
+
+function _event_database_pull_request_tags($method, $url, $call = '', array $data = []) {
+  try {
+    $client = new GuzzleHttpClient(['base_uri' => $url]);
+    $res = $client->request($method, $call, $data);
+    return $res;
+  } catch (GuzzleClientException $e) {
+    watchdog_exception('GuzzleClientException', $e);
+  }
 }
