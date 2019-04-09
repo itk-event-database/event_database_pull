@@ -22,6 +22,14 @@ event_database_pull.occurrences_list:
   requirements:
     _permission: 'access content'
 
+event_database_pull.occurences_list_next:
+  path: '/event_database_pull/occurrences_next/{page}'
+  defaults:
+    _controller: 'Drupal\event_database_pull\Controller\OccurrenceController::getNextOccurences'
+    _title: 'Occurences list next'
+  requirements:
+    _permission: 'access content'
+
 event_database_pull.events_show:
   path: '/event_database_pull/events/{id}'
   defaults:
