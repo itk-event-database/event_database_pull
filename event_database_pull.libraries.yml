@@ -12,6 +12,7 @@ event_database_pull_search:
     js/select2.min.js: {}
     js/searchTags.js: {}
     js/searchEndlessScroll.js: {}
+    js/mobileAlterations.js: {}
   dependencies:
     - core/jquery
     - core/jquery.ui.datepicker
