@@ -84,7 +84,7 @@ class SearchForm extends FormBase {
     $form['search_date']['date_from'] = array(
       '#title' => t('From'),
       '#type' => 'textfield',
-      '#attributes' => ['class' => ['js-date-popup date-from']],
+      '#attributes' => ['class' => ['js-date-popup date-from'], 'readonly' => 'true'],
       '#default_value' => !empty($from) ? $from : NULL,
       '#placeholder' => '01/01/2019',
       '#prefix' => '<div class="date-from">',
@@ -94,7 +94,7 @@ class SearchForm extends FormBase {
     $form['search_date']['date_to'] = array(
       '#title' => t('To'),
       '#type' => 'textfield',
-      '#attributes' => ['class' => ['js-date-popup date-to']],
+      '#attributes' => ['class' => ['js-date-popup date-to'], 'readonly' => 'true'],
       '#default_value' => !empty($to) ? $to : NULL,
       '#placeholder' => '01/01/2019',
       '#prefix' => '<div class="date-to">',
@@ -112,11 +112,24 @@ class SearchForm extends FormBase {
       '#suffix' => '<i class="fas fa-layer-group"></i></div>',
     );
 
-    $form['submit'] = array(
+    $form['action_wrapper'] = array(
+      '#type' => 'container',
+      '#attributes' => ['class' => ['action-wrapper']],
+    );
+    $form['action_wrapper']['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Search'),
       '#attributes' => ['disabled' => 'disabled'],
     );
+
+    $form['action_wrapper']['reset'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'a',
+      '#value' => $this->t('Reset search'),
+      '#attributes' => ['href' => '/events', 'class'=> ['js-reset-search']],
+      '#prefix' => '<div class="reset-search">',
+      '#suffix' => '</div>',
+    ];
 
     return $form;
   }
