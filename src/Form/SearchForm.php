@@ -86,7 +86,7 @@ class SearchForm extends FormBase {
       '#type' => 'textfield',
       '#attributes' => ['class' => ['js-date-popup date-from'], 'readonly' => 'true'],
       '#default_value' => !empty($from) ? $from : NULL,
-      '#placeholder' => '01/01/2019',
+      '#placeholder' => '01-01-2019',
       '#prefix' => '<div class="date-from">',
       '#suffix' => '<i class="far fa-calendar-alt"></i></div>',
     );
@@ -96,7 +96,7 @@ class SearchForm extends FormBase {
       '#type' => 'textfield',
       '#attributes' => ['class' => ['js-date-popup date-to'], 'readonly' => 'true'],
       '#default_value' => !empty($to) ? $to : NULL,
-      '#placeholder' => '01/01/2019',
+      '#placeholder' => '01-01-2019',
       '#prefix' => '<div class="date-to">',
       '#suffix' => '<i class="far fa-calendar-alt"></i></div>',
     );
