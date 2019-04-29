@@ -4,7 +4,7 @@
 
 ```
 cd «drupal root»
-composer require drupal/event_database_pull dev-develop
+composer require itk-event-database/event_database_pull dev-develop
 ```
 
 
