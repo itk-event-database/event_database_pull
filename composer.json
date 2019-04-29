@@ -1,6 +1,6 @@
 {
-    "name": "drupal/event_database_pull",
-    "description": "Show events from the Event database API on a Drupal site",
+    "name": "itk-event-database/event_database_pull",
+    "description": "Drupal 8 module to show events from the Event database API on a Drupal site",
     "type": "drupal-module",
     "keywords": ["Drupal"],
     "license": "GPL-2.0+",
