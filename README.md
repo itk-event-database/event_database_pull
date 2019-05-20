@@ -4,8 +4,7 @@
 
 ```
 cd «drupal root»
-composer config repositories.itk composer https://packagist.etek.dk/
-composer require drupal/event_database_pull dev-develop
+composer require itk-event-database/event_database_pull dev-develop
 ```
 
 
