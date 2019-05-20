@@ -9,7 +9,7 @@
     attach : function(context, settings) {
       $(window).on('scroll', function() {
         // Act on scroll near bottom.
-        if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+        if($(window).scrollTop() + $(window).height() > $('#infinity-next-container').offset().top + 200) {
           var infiniteScrollEnabled = $('.infinite_scroll_enabled').length;
           // If enabled
           if (infiniteScrollEnabled > 0) {

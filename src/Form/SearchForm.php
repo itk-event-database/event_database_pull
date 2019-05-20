@@ -65,7 +65,7 @@ class SearchForm extends FormBase {
     $form['search'] = array(
       '#title' => t('Title'),
       '#type' => 'textfield',
-      '#placeholder' => t('Children'),
+      '#placeholder' => t('Type the event title here'),
       '#default_value' => !empty($search) ? $search : NULL,
     );
 
@@ -86,7 +86,7 @@ class SearchForm extends FormBase {
       '#type' => 'textfield',
       '#attributes' => ['class' => ['js-date-popup date-from'], 'readonly' => 'true'],
       '#default_value' => !empty($from) ? $from : NULL,
-      '#placeholder' => '01/01/2019',
+      '#placeholder' => date('d') . '-' . date('m') . '-' . date('Y'),
       '#prefix' => '<div class="date-from">',
       '#suffix' => '<i class="far fa-calendar-alt"></i></div>',
     );
@@ -96,7 +96,7 @@ class SearchForm extends FormBase {
       '#type' => 'textfield',
       '#attributes' => ['class' => ['js-date-popup date-to'], 'readonly' => 'true'],
       '#default_value' => !empty($to) ? $to : NULL,
-      '#placeholder' => '01/01/2019',
+      '#placeholder' => t('Select date'),
       '#prefix' => '<div class="date-to">',
       '#suffix' => '<i class="far fa-calendar-alt"></i></div>',
     );

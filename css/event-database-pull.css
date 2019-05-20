@@ -3,3 +3,12 @@
     width: 20px;
     vertical-align: bottom;
 }
+
+.ui-datepicker .ui-datepicker-next,
+.ui-datepicker .ui-datepicker-prev {
+    display: block;
+}
+
+.ui-datepicker .ui-datepicker-title {
+    text-align: center!important;
+}
