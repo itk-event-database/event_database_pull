@@ -1,7 +1,7 @@
 (function($) {
   $(document).ready(function() {
     $('.js-select2').select2({
-      placeholder: 'Tryk her for at vælge kategorier'
+      placeholder: 'Tryk her'
     });
     $('.js-date-popup').datepicker({
       dateFormat: "dd-mm-yy",
