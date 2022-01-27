@@ -15,6 +15,5 @@ event_database_pull_search:
     js/mobileAlterations.js: {}
   dependencies:
     - core/jquery
-    - core/jquery.ui.datepicker
     - core/drupal.ajax
     - core/jquery.once

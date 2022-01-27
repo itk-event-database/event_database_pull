@@ -72,11 +72,12 @@ class OccurrenceController extends ControllerBase {
           $query_array['page'] = 1;
         }
       }
-      
+
       $result = $this->eventDatabase->getOccurrences($query_array);
       $occurrences = $result->getItems();
       $number_items = $result->get('totalItems');
-      pager_default_initialize($number_items, 20);
+      // @todo use dependency injection.
+      \Drupal\Core\Pager\PagerManagerInterface::createPager($number_items, 20);
 
       foreach ($occurrences as $key => $occurrence) {
         $images[$key] = array(
@@ -256,7 +257,7 @@ class OccurrenceController extends ControllerBase {
   private function getListQuery(Request $request) {
     $query = new Query($request->getQueryString());
 
-    return $query->toArray();
+    return $query->getPairs();
   }
 
   /**
