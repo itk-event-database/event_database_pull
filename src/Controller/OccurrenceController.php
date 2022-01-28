@@ -85,7 +85,6 @@ class OccurrenceController extends ControllerBase {
       $result = $this->eventDatabase->getOccurrences($query_array);
       $occurrences = $result->getItems();
       $number_items = $result->get('totalItems');
-      // @todo use dependency injection.
       $this->pager->createPager($number_items, 20);
 
       foreach ($occurrences as $key => $occurrence) {
