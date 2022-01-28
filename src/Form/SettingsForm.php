@@ -7,39 +7,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Settings for Event Database module.
  */
 class SettingsForm extends ConfigFormBase {
-
-  /**
-   * Messenger service.
-   *
-   * @var \Drupal\Core\Messenger\MessengerInterface
-   */
-  protected MessengerInterface $messenger;
-
-  /**
-   * Form constructor.
-   */
-  public function __construct(ConfigFactoryInterface $config_factory, MessengerInterface $messenger) {
-    parent::__construct($config_factory);
-    $this->messenger = $messenger;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('messenger'),
-    );
-  }
 
   /**
    * {@inheritdoc}
