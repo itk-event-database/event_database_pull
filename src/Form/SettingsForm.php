@@ -172,7 +172,6 @@ class SettingsForm extends ConfigFormBase {
     $config->save();
     parent::submitForm($form, $form_state);
     $message = Link::createFromRoute($this->t('View events list'), 'event_database_pull.events_list')->toString();
-    // @todo use dependency injection.
     $this->messenger->addMessage($message);
   }
 
