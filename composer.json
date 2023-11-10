@@ -12,8 +12,7 @@
     },
     "require": {
         "itk-event-database/event-database-client": "^1.2",
-        "league/uri": "^4.1",
-        "drupal/imagecache_external": "^1.0"
+        "league/uri": "^4.1"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
