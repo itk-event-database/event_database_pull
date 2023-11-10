@@ -4,13 +4,12 @@ namespace Drupal\event_database_pull\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\event_database_pull\Service\EventDatabase;
+use Drupal\taxonomy\Entity\Term;
 use League\Uri\Components\Query;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\HtmlCommand;
 
 /**
  * Event database occurrence controller.
@@ -19,14 +18,14 @@ class OccurrenceController extends ControllerBase {
   /**
    * The event database service.
    *
-   * @var EventDatabase
+   * @var \Drupal\event_database_pull\Service\EventDatabase
    */
   protected $eventDatabase;
 
   /**
    * A logger.
    *
-   * @var LoggerInterface
+   * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
@@ -54,10 +53,10 @@ class OccurrenceController extends ControllerBase {
    * @return array
    *   The return value!
    */
-  public function listAction(Request $request, $page = NUll) {
+  public function listAction(Request $request, $page = NULL) {
     $route = \Drupal::routeMatch()->getRouteName();
     $form = \Drupal::formBuilder()->getForm('Drupal\event_database_pull\Form\SearchForm');
-    $images = array();
+    $images = [];
     $query_array = [];
 
     try {
@@ -72,19 +71,19 @@ class OccurrenceController extends ControllerBase {
           $query_array['page'] = 1;
         }
       }
-      
+
       $result = $this->eventDatabase->getOccurrences($query_array);
       $occurrences = $result->getItems();
       $number_items = $result->get('totalItems');
       pager_default_initialize($number_items, 20);
 
       foreach ($occurrences as $key => $occurrence) {
-        $images[$key] = array(
+        $images[$key] = [
           '#theme' => 'imagecache_external',
           '#style_name' => 'medium',
           '#uri' => $occurrence->getEvent()->getImage(),
           '#alt' => $occurrence->getEvent()->getName(),
-        );
+        ];
       }
 
       $next = $result->get('next');
@@ -124,8 +123,8 @@ class OccurrenceController extends ControllerBase {
    * @return array
    *   The return value!
    */
-  public function getNextOccurences(Request $request, $page = NUll) {
-    $images = array();
+  public function getNextOccurences(Request $request, $page = NULL) {
+    $images = [];
 
     try {
       $referer = $request->headers->get('referer');
@@ -136,17 +135,16 @@ class OccurrenceController extends ControllerBase {
       $query_array = $this->buildSearchQuery($referer_parameters);
       $query_array['page'] = $page;
 
-
       $result = $this->eventDatabase->getOccurrences($query_array);
       $occurrences = $result->getItems();
 
       foreach ($occurrences as $key => $occurrence) {
-        $images[$key] = array(
+        $images[$key] = [
           '#theme' => 'imagecache_external',
           '#style_name' => 'medium',
           '#uri' => $occurrence->getEvent()->getImage(),
           '#alt' => $occurrence->getEvent()->getName(),
-        );
+        ];
       }
 
       $next = $result->get('next');
@@ -173,11 +171,10 @@ class OccurrenceController extends ControllerBase {
         '#nextPage' => $nextPage,
       ];
 
-
       return new JsonResponse([
         'html' => \Drupal::service('renderer')
           ->renderPlain($render)
-          ->__toString()
+          ->__toString(),
       ]);
     }
     catch (\Exception $ex) {
@@ -199,12 +196,12 @@ class OccurrenceController extends ControllerBase {
 
     try {
       $occurrence = $this->eventDatabase->getOccurrence($id);
-      $image = array(
+      $image = [
         '#theme' => 'imagecache_external',
         '#style_name' => 'large',
         '#uri' => $occurrence->getEvent()->getImage(),
         '#alt' => $occurrence->getEvent()->getName(),
-      );
+      ];
 
       return [
         '#theme' => 'event_database_pull_occurrence_details',
@@ -214,7 +211,7 @@ class OccurrenceController extends ControllerBase {
             'event_database_pull/event_database_pull',
           ],
         ],
-        '#image' => $image
+        '#image' => $image,
       ];
     }
     catch (\Exception $ex) {
@@ -223,12 +220,13 @@ class OccurrenceController extends ControllerBase {
   }
 
   /**
-   * Show an occurrence title
+   * Show an occurrence title.
    *
    * @param string $id
    *   The occurrence id.
+   *
    * @return string
-   *  The event title of the occurrence.
+   *   The event title of the occurrence.
    */
   public function showTitle($id) {
     $occurrence = $this->eventDatabase->getOccurrence($id);
@@ -236,6 +234,9 @@ class OccurrenceController extends ControllerBase {
     return $occurrence->getEvent()->getName();
   }
 
+  /**
+   *
+   */
   private function errorAction(\Exception $ex) {
     $this->logger->error($ex->getMessage());
     return [
@@ -261,34 +262,37 @@ class OccurrenceController extends ControllerBase {
 
   /**
    * Build search query for search page.
-   *
    */
-  private function buildSearchQuery ($query){
-    // Remove empty values
+  private function buildSearchQuery($query) {
+    // Remove empty values.
     foreach ($query as $key => $value) {
-      if(empty($value)) {
+      if (empty($value)) {
         unset($query[$key]);
       }
     }
     $query_array = [];
     foreach ($query as $key => $value) {
-      switch ($key){
+      switch ($key) {
         case 'search':
           $query_array['event.name'] = $value;
           break;
+
         case 'date_from':
           $value = explode('-', $value);
           $query_array['startDate[after]'] = implode('-', array_reverse($value)) . 'T00:00:00.000Z';
           break;
+
         case 'date_to':
           $value = explode('-', $value);
-          $query_array['startDate[before]'] = implode('-', array_reverse($value)) . 'T23:59:59.999Z'; // End of day
+          // End of day.
+          $query_array['startDate[before]'] = implode('-', array_reverse($value)) . 'T23:59:59.999Z';
           break;
+
         case 'terms_string':
           $query_array['event.tags'] = [];
           $terms = explode('_', $value);
           foreach ($terms as $term_id) {
-            $term = \Drupal\taxonomy\Entity\Term::load($term_id);
+            $term = Term::load($term_id);
             if (isset($term->field_event_database_tags)) {
               foreach ($term->field_event_database_tags->getValue() as $tags_query) {
                 $query_array['event.tags'][] = $tags_query['value'];
@@ -300,4 +304,5 @@ class OccurrenceController extends ControllerBase {
     }
     return $query_array;
   }
+
 }

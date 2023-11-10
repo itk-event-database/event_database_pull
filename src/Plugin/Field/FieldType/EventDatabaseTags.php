@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\event_database_pull\Plugin\field\FieldType\EventDatabaseTags.
- */
-
 namespace Drupal\event_database_pull\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -21,7 +16,6 @@ use Drupal\options\Plugin\Field\FieldType\ListStringItem;
  *   default_formatter = "event_database_tags_formatter"
  * )
  */
-
 class EventDatabaseTags extends ListStringItem {
 
   /**
@@ -39,4 +33,5 @@ class EventDatabaseTags extends ListStringItem {
     $schema = parent::schema($field_definition);
     return $schema;
   }
+
 }

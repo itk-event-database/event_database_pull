@@ -1,22 +1,12 @@
 <?php
-/**
- * @file
- * Contains \Drupal\event_database_pull\Form\SearchForm.
- */
 
 namespace Drupal\event_database_pull\Form;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\event_database_pull\Service\EventDatabase;
-use Drupal\Core\Controller\ControllerBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Component\Utility\UrlHelper;
-use Itk\EventDatabaseClient\Collection;
 use Drupal\Core\Url;
-
+use Drupal\event_database_pull\Service\EventDatabase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Contribute form.
@@ -25,7 +15,7 @@ class SearchForm extends FormBase {
   /**
    * The event database service.
    *
-   * @var EventDatabase
+   * @var \Drupal\event_database_pull\Service\EventDatabase
    */
   protected $eventDatabase;
 
@@ -62,26 +52,26 @@ class SearchForm extends FormBase {
     $terms_string = \Drupal::request()->query->get('terms_string');
     $queryTerms = explode('_', $terms_string);
     $form['#attached']['library'][] = 'event_database_pull/event_database_pull_search';
-    $form['search'] = array(
+    $form['search'] = [
       '#title' => t('Title'),
       '#type' => 'textfield',
       '#placeholder' => t('Type the event title here'),
       '#default_value' => !empty($search) ? $search : NULL,
-    );
+    ];
 
     $term_data = [];
     $vid = 'event_tags';
-    $terms =\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid);
     foreach ($terms as $term) {
       $term_data[$term->tid] = $term->name;
     }
 
-    $form['search_date'] = array(
+    $form['search_date'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['date-wrapper']],
-    );
+    ];
 
-    $form['search_date']['date_from'] = array(
+    $form['search_date']['date_from'] = [
       '#title' => t('From'),
       '#type' => 'textfield',
       '#attributes' => ['class' => ['js-date-popup date-from'], 'readonly' => 'true'],
@@ -89,9 +79,9 @@ class SearchForm extends FormBase {
       '#placeholder' => date('d') . '-' . date('m') . '-' . date('Y'),
       '#prefix' => '<div class="date-from">',
       '#suffix' => '<i class="far fa-calendar-alt"></i></div>',
-    );
+    ];
 
-    $form['search_date']['date_to'] = array(
+    $form['search_date']['date_to'] = [
       '#title' => t('To'),
       '#type' => 'textfield',
       '#attributes' => ['class' => ['js-date-popup date-to'], 'readonly' => 'true'],
@@ -99,34 +89,34 @@ class SearchForm extends FormBase {
       '#placeholder' => t('Select date'),
       '#prefix' => '<div class="date-to">',
       '#suffix' => '<i class="far fa-calendar-alt"></i></div>',
-    );
+    ];
 
-    $form['search_tags'] = array(
+    $form['search_tags'] = [
       '#title' => t('Categories'),
       '#type' => 'select',
       '#options' => $term_data,
       '#multiple' => TRUE,
-      '#attributes' => ['class'=> ['js-select2']],
+      '#attributes' => ['class' => ['js-select2']],
       '#default_value' => $queryTerms,
       '#prefix' => '<div class="search-tags">',
       '#suffix' => '<i class="fas fa-layer-group"></i></div>',
-    );
+    ];
 
-    $form['action_wrapper'] = array(
+    $form['action_wrapper'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['action-wrapper']],
-    );
-    $form['action_wrapper']['submit'] = array(
+    ];
+    $form['action_wrapper']['submit'] = [
       '#type' => 'submit',
       '#value' => t('Search'),
       '#attributes' => ['disabled' => 'disabled'],
-    );
+    ];
 
     $form['action_wrapper']['reset'] = [
       '#type' => 'html_tag',
       '#tag' => 'a',
       '#value' => $this->t('Reset search'),
-      '#attributes' => ['href' => '/events?reset=TRUE', 'class'=> ['js-reset-search']],
+      '#attributes' => ['href' => '/events?reset=TRUE', 'class' => ['js-reset-search']],
       '#prefix' => '<div class="reset-search">',
       '#suffix' => '</div>',
     ];
@@ -138,7 +128,7 @@ class SearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $query = array();
+    $query = [];
     $values = $form_state->getValues();
 
     // We only want user submitted values.
@@ -167,5 +157,5 @@ class SearchForm extends FormBase {
     }
     $form_state->setRedirectUrl($url);
   }
+
 }
-?>

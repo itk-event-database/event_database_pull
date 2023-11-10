@@ -6,9 +6,9 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\event_database_pull\Service\EventDatabase;
 use Itk\EventDatabaseClient\Collection;
-use Drupal\Core\Url;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -30,7 +30,7 @@ class OccurrencesShow extends BlockBase implements BlockPluginInterface, Contain
   private $eventDatabase;
 
   /**
-   * @var LoggerInterface
+   * @var \Psr\Log\LoggerInterface
    */
   private $logger;
 
@@ -63,7 +63,7 @@ class OccurrencesShow extends BlockBase implements BlockPluginInterface, Contain
   public function build() {
     $config = $this->getConfiguration();
     $query = $this->getQuery($config);
-    $images = array();
+    $images = [];
 
     try {
       $result = $this->eventDatabase->getOccurrences($query, $config['inherit_module_configuration']);
@@ -72,12 +72,12 @@ class OccurrencesShow extends BlockBase implements BlockPluginInterface, Contain
       $view['more_link'] = $config['show_all_occurrences_link'];
 
       foreach ($occurrences as $key => $occurrence) {
-        $images[$key] = array(
+        $images[$key] = [
           '#theme' => 'imagecache_external',
           '#style_name' => 'medium',
           '#uri' => $occurrence->getEvent()->getImage(),
           '#alt' => $occurrence->getEvent()->getName(),
-        );
+        ];
       }
       return [
         '#theme' => 'event_database_occurrences_block',
@@ -189,14 +189,14 @@ class OccurrencesShow extends BlockBase implements BlockPluginInterface, Contain
         '#type' => 'number',
         '#title' => $this->t('Number of events'),
         '#description' => t('The number of events to display'),
-        '#default_value' => isset($config['items_per_page']) ? $config['items_per_page'] : 5,
+        '#default_value' => $config['items_per_page'] ?? 5,
         '#size' => 5,
       ],
 
       'order' => [
         '#type' => 'radios',
         '#title' => $this->t('Order'),
-        '#default_value' => isset($config['order']) ? $config['order'] : 'ASC',
+        '#default_value' => $config['order'] ?? 'ASC',
         '#options' => [
           'ASC' => $this->t('Show first upcoming first'),
           'DESC' => $this->t('Show first upcoming last'),

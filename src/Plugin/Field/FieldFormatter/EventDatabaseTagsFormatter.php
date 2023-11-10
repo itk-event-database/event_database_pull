@@ -1,14 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\event_database_pull\Plugin\field\FieldFormatter\EventDatabaseTagsFormatter.
- */
-
 namespace Drupal\event_database_pull\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FormatterBase;
 
 /**
  * Plugin implementation of the 'event_database_tags_formatter'.
@@ -22,6 +17,7 @@ use Drupal\Core\Field\FieldItemListInterface;
  * )
  */
 class EventDatabaseTagsFormatter extends FormatterBase {
+
   /**
    * {@inheritdoc}
    */
@@ -35,4 +31,5 @@ class EventDatabaseTagsFormatter extends FormatterBase {
     }
     return $output;
   }
+
 }

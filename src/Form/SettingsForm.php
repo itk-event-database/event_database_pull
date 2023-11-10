@@ -121,7 +121,7 @@ class SettingsForm extends ConfigFormBase {
       $form_state->setError($form['list']['query'], $this->t('Query must be valid YAML (@message)', ['@message' => $ex->getMessage()]));
     }
 
-    // @TODO: Test that we can get events from api.
+    // @todo Test that we can get events from api.
   }
 
   /**

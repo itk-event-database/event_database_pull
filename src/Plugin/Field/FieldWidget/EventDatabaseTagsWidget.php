@@ -1,17 +1,11 @@
 <?php
 
-/**
-* @file
-* Contains \Drupal\event_database_pull\Plugin\field\FieldWidget\EventDatabaseTagsWidget.
-*/
-
 namespace Drupal\event_database_pull\Plugin\Field\FieldWidget;
 
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Field\Plugin\Field\FieldWidget;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsWidgetBase;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Plugin implementation of the 'EventDatabaseTagsWidget' widget.
@@ -25,7 +19,6 @@ use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsWidgetBase;
  *   multiple_values = TRUE
  * )
  */
-
 class EventDatabaseTagsWidget extends OptionsWidgetBase {
 
   /**
@@ -33,7 +26,7 @@ class EventDatabaseTagsWidget extends OptionsWidgetBase {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
-    
+
     $element += [
       '#type' => 'checkboxes',
       '#options' => $this->getOptions($items->getEntity()),
@@ -60,4 +53,5 @@ class EventDatabaseTagsWidget extends OptionsWidgetBase {
     $this->options = $options;
     return $this->options;
   }
+
 }

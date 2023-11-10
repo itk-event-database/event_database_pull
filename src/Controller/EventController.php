@@ -19,14 +19,14 @@ class EventController extends ControllerBase {
   /**
    * The event database service.
    *
-   * @var EventDatabase
+   * @var \Drupal\event_database_pull\Service\EventDatabase
    */
   protected $eventDatabase;
 
   /**
    * A logger.
    *
-   * @var LoggerInterface
+   * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
@@ -55,7 +55,7 @@ class EventController extends ControllerBase {
    *   The return value!
    */
   public function listAction(Request $request) {
-    $images = array();
+    $images = [];
 
     try {
       $query = $this->getListQuery($request);
@@ -64,12 +64,12 @@ class EventController extends ControllerBase {
       $view = $this->getView($result);
 
       foreach ($events as $key => $event) {
-        $images[$key] = array(
+        $images[$key] = [
           '#theme' => 'imagecache_external',
           '#style_name' => 'medium',
           '#uri' => $event->getImage(),
           '#alt' => $event->getName(),
-        );
+        ];
       }
 
       return [
@@ -107,16 +107,16 @@ class EventController extends ControllerBase {
     try {
       $event = $this->eventDatabase->getEvent($id);
 
-      if (null === $event) {
+      if (NULL === $event) {
         throw new NotFoundHttpException();
       }
 
-      $image = array(
+      $image = [
         '#theme' => 'imagecache_external',
         '#style_name' => 'medium',
         '#uri' => $event->getImage(),
         '#alt' => $event->getName(),
-      );
+      ];
 
       return [
         '#theme' => 'event_database_pull_event_details',
@@ -138,12 +138,13 @@ class EventController extends ControllerBase {
   }
 
   /**
-   * Show an event title
+   * Show an event title.
    *
    * @param string $id
    *   The event id.
+   *
    * @return string
-   *  The event title.
+   *   The event title.
    */
   public function showTitle($id) {
     $event = $this->eventDatabase->getEvent($id);
@@ -151,6 +152,9 @@ class EventController extends ControllerBase {
     return $event->getName();
   }
 
+  /**
+   *
+   */
   private function errorAction(\Exception $ex) {
     $this->logger->error($ex->getMessage());
     return [

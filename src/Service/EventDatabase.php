@@ -7,7 +7,6 @@ use Itk\EventDatabaseClient\Client;
 use Itk\EventDatabaseClient\Item\Event;
 use Itk\EventDatabaseClient\Item\Occurrence;
 use Symfony\Component\Yaml\Yaml;
-use DateTime;
 
 /**
  * Event database service.
@@ -61,7 +60,7 @@ class EventDatabase {
     $client = $this->getClient();
     $query = $this->getOccurrencesListQuery($query, $mergeQuery);
     // Align Drupals pager to event database query (Drupal starts at 0 event DB at 1)
-    if(array_key_exists('page', $query)){
+    if (array_key_exists('page', $query)) {
       $query['page'] = $query['page'];
     }
     $result = $client->getOccurrences($query);
@@ -106,7 +105,7 @@ class EventDatabase {
 
     if ($this->configuration->get('item.generate_404_on_past_event')
       && $this->isPastEvent($event)) {
-      return null;
+      return NULL;
     }
 
     $this->augment($event);
@@ -135,7 +134,7 @@ class EventDatabase {
   /**
    * Add some extra data to an event.
    *
-   * @param Event $event
+   * @param \Itk\EventDatabaseClient\Item\Event $event
    *   The event.
    */
   private function augment(Event $event) {
@@ -144,9 +143,9 @@ class EventDatabase {
       $startDate = $occurrence->get('startDate');
       $endDate = $occurrence->get('endDate');
       if ($startDate && $endDate) {
-        $formattedStartDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
+        $formattedStartDate = \DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
           $startDate);
-        $formattedEndDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
+        $formattedEndDate = \DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
           $endDate);
         $occurrence->set('samedate', $formattedStartDate == $formattedEndDate);
       }
@@ -159,7 +158,7 @@ class EventDatabase {
   /**
    * Add some extra data to an occurrence.
    *
-   * @param Event $event
+   * @param \Itk\EventDatabaseClient\Item\Event $event
    *   The event.
    */
   private function augmentOccurrence(Occurrence $occurrence) {
@@ -167,9 +166,9 @@ class EventDatabase {
     $startDate = $occurrence->get('startDate');
     $endDate = $occurrence->get('endDate');
     if ($startDate && $endDate) {
-      $formattedStartDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
+      $formattedStartDate = \DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
         $startDate);
-      $formattedEndDate = DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
+      $formattedEndDate = \DateTime::CreateFromFormat('Y-m-d\TH:i:s\+00:00',
         $endDate);
       $occurrence->set('samedate', $formattedStartDate == $formattedEndDate);
     }
@@ -177,7 +176,6 @@ class EventDatabase {
       $occurrence->set('samedate', FALSE);
     }
   }
-
 
   /**
    * Get event database client.
@@ -241,7 +239,7 @@ class EventDatabase {
    * @param array $userQuery
    *   The initial query.
    *
-   * @param boolean $mergeQuery
+   * @param bool $mergeQuery
    *   Whether to merge the query query.
    *
    * @return array
@@ -279,6 +277,9 @@ class EventDatabase {
     return $query;
   }
 
+  /**
+   *
+   */
   private function getTagsListQuery(array $userQuery, $mergeQuery) {
     $query = [];
 
@@ -310,4 +311,5 @@ class EventDatabase {
 
     return $query;
   }
+
 }

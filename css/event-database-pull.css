@@ -1,14 +1,14 @@
 .icon--calendar,
 .icon--time {
-    width: 20px;
-    vertical-align: bottom;
+  width: 20px;
+  vertical-align: bottom;
 }
 
 .ui-datepicker .ui-datepicker-next,
 .ui-datepicker .ui-datepicker-prev {
-    display: block;
+  display: block;
 }
 
 .ui-datepicker .ui-datepicker-title {
-    text-align: center!important;
+  text-align: center!important;
 }
