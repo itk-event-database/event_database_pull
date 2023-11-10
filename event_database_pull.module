@@ -37,6 +37,7 @@ function event_database_pull_allowed_values_bundle(FieldStorageConfig $definitio
  *   A drupal term.
  *
  * @return array
+ *
  * @throws \GuzzleHttp\Exception\GuzzleException
  */
 function _event_database_pull_generate_options($entity): array {
@@ -70,6 +71,7 @@ function _event_database_pull_generate_options($entity): array {
  *   A list of data.
  *
  * @return \Psr\Http\Message\ResponseInterface|void
+ *
  * @throws \GuzzleHttp\Exception\GuzzleException
  */
 function _event_database_pull_request_tags(string $method, string $url, string $call = '', array $data = []) {
