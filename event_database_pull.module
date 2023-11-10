@@ -12,7 +12,7 @@ use GuzzleHttp\Exception\ClientException as GuzzleClientException;
 
 /**
  * Set dynamic allowed values for the bundle field.
- * See https://www.flocondetoile.fr/blog/automatically-provide-options-list-field-type-drupal-8
+ * See https://www.flocondetoile.fr/blog/automatically-provide-options-list-field-type-drupal-8.
  *
  * @param \Drupal\field\Entity\FieldStorageConfig $definition
  *   The field definition.
@@ -27,14 +27,19 @@ use GuzzleHttp\Exception\ClientException as GuzzleClientException;
  * @see options_allowed_values()
  */
 function event_database_pull_allowed_values_bundle(FieldStorageConfig $definition, Term $entity = NULL, $cacheable) {
-  $options = _event_database_pull_generate_options($entity);
-  return $options;
+  return _event_database_pull_generate_options($entity);
 }
 
 /**
+ * Generate options for api call.
  *
+ * @param Drupal\taxonomy\Entity\Term $entity
+ *   A drupal term.
+ *
+ * @return array
+ * @throws \GuzzleHttp\Exception\GuzzleException
  */
-function _event_database_pull_generate_options($entity) {
+function _event_database_pull_generate_options($entity): array {
   $options = [];
   $res = _event_database_pull_request_tags('GET', 'https://api.detskeriaarhus.dk', '/api/tags?items_per_page=100');
   $tags = json_decode($res->getBody(), TRUE);
@@ -53,13 +58,24 @@ function _event_database_pull_generate_options($entity) {
 }
 
 /**
+ * Get tags.
  *
+ * @param string $method
+ *   A http request method.
+ * @param string $url
+ *   A url.
+ * @param string $call
+ *   The call to make.
+ * @param array $data
+ *   A list of data.
+ *
+ * @return \Psr\Http\Message\ResponseInterface|void
+ * @throws \GuzzleHttp\Exception\GuzzleException
  */
-function _event_database_pull_request_tags($method, $url, $call = '', array $data = []) {
+function _event_database_pull_request_tags(string $method, string $url, string $call = '', array $data = []) {
   try {
     $client = new GuzzleHttpClient(['base_uri' => $url]);
-    $res = $client->request($method, $call, $data);
-    return $res;
+    return $client->request($method, $call, $data);
   }
   catch (GuzzleClientException $e) {
     watchdog_exception('GuzzleClientException', $e);
