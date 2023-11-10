@@ -29,7 +29,7 @@ class SettingsForm extends ConfigFormBase {
 
     $form['api'] = [
       '#type' => 'fieldset',
-      '#title' => t('API'),
+      '#title' => $this->t('API'),
       '#tree' => TRUE,
 
       'url' => [
@@ -63,7 +63,7 @@ class SettingsForm extends ConfigFormBase {
       'items_per_page' => [
         '#type' => 'number',
         '#title' => $this->t('Number of events per page'),
-        '#description' => t('The number of events to display per page'),
+        '#description' => $this->t('The number of events to display per page'),
         '#default_value' => $config->get('list.items_per_page') ?: 5,
         '#size' => 5,
       ],
