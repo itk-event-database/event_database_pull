@@ -2,6 +2,7 @@
 
 namespace Drupal\event_database_pull\Controller;
 
+use Drupal\taxonomy\Entity\Term;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\event_database_pull\Service\EventDatabase;
 use Drupal\taxonomy\Entity\Term;
@@ -10,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\Pager\PagerManagerInterface;
 
 /**
  * Event database occurrence controller.
@@ -30,11 +32,19 @@ class OccurrenceController extends ControllerBase {
   protected $logger;
 
   /**
+   * Pager manager.
+   *
+   * @var \Drupal\Core\Pager\PagerManagerInterface
+   */
+  protected $pager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(EventDatabase $eventDatabase, LoggerInterface $logger) {
+  public function __construct(EventDatabase $eventDatabase, LoggerInterface $logger, PagerManagerInterface $pager) {
     $this->eventDatabase = $eventDatabase;
     $this->logger = $logger;
+    $this->pager = $pager;
   }
 
   /**
@@ -43,7 +53,8 @@ class OccurrenceController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('event_database_pull.event_database'),
-      $container->get('event_database_pull.logger')
+      $container->get('event_database_pull.logger'),
+      $container->get('pager.manager')
     );
   }
 
@@ -75,7 +86,7 @@ class OccurrenceController extends ControllerBase {
       $result = $this->eventDatabase->getOccurrences($query_array);
       $occurrences = $result->getItems();
       $number_items = $result->get('totalItems');
-      pager_default_initialize($number_items, 20);
+      $this->pager->createPager($number_items, 20);
 
       foreach ($occurrences as $key => $occurrence) {
         $images[$key] = [
@@ -257,7 +268,7 @@ class OccurrenceController extends ControllerBase {
   private function getListQuery(Request $request) {
     $query = new Query($request->getQueryString());
 
-    return $query->toArray();
+    return $query->getPairs();
   }
 
   /**

@@ -201,7 +201,7 @@ class EventController extends ControllerBase {
   private function getListQuery(Request $request) {
     $query = new Query($request->getQueryString());
 
-    return $query->toArray();
+    return $query->getPairs();
   }
 
 }

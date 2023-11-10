@@ -144,7 +144,7 @@ class SettingsForm extends ConfigFormBase {
     $config->save();
     parent::submitForm($form, $form_state);
     $message = Link::createFromRoute($this->t('View events list'), 'event_database_pull.events_list')->toString();
-    drupal_set_message($message);
+    $this->messenger->addMessage($message);
   }
 
   /**
