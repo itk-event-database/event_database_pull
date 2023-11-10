@@ -4,7 +4,7 @@ namespace Drupal\event_database_pull\Service;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
-use Itk\EventDatabaseClient;
+use EventDatabaseClient\Collection;
 use Itk\EventDatabaseClient\Client;
 use Itk\EventDatabaseClient\Item\Event;
 use Itk\EventDatabaseClient\Item\Occurrence;
@@ -39,7 +39,7 @@ class EventDatabase {
    * @return \Itk\EventDatabaseClient\Collection The events.
    *   The events.
    */
-  public function getEvents(array $query, bool $mergeQuery = TRUE): EventDatabaseClient\Collection {
+  public function getEvents(array $query, bool $mergeQuery = TRUE): Collection {
     $client = $this->getClient();
     $query = $this->getListQuery($query, $mergeQuery);
     $result = $client->getEvents($query);
@@ -62,7 +62,7 @@ class EventDatabase {
    * @return \Itk\EventDatabaseClient\Collection
    *   The occurrences.
    */
-  public function getOccurrences(array $query, bool $mergeQuery = TRUE): EventDatabaseClient\Collection {
+  public function getOccurrences(array $query, bool $mergeQuery = TRUE): Collection {
     $client = $this->getClient();
     $query = $this->getOccurrencesListQuery($query, $mergeQuery);
     // Align Drupals pager to event database query (Drupal starts at 0 event DB at 1)
@@ -125,6 +125,7 @@ class EventDatabase {
    * @param \Itk\EventDatabaseClient\Item\Event $event
    *
    * @return bool
+   *
    * @throws \Exception
    */
   private function isPastEvent(Event $event): bool {
