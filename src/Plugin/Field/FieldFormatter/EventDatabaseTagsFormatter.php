@@ -19,9 +19,17 @@ use Drupal\Core\Field\FormatterBase;
 class EventDatabaseTagsFormatter extends FormatterBase {
 
   /**
-   * {@inheritdoc}
+   * View elements method.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   A list of field items.
+   * @param string $langcode
+   *   The langcode
+   *
+   * @return array[]
+   *   A list of elements.
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
+  public function viewElements(FieldItemListInterface $items, string $langcode): array {
     $output = [];
     foreach ($items as $delta => $item) {
       $build['type'] = [

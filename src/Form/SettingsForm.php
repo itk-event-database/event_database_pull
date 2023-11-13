@@ -118,6 +118,8 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
+   * Validate the form.
+   *
    * @param array<string, mixed> $form
    *   The form to validate.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
@@ -136,6 +138,8 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
+   * Submit the form.
+   *
    * @param array<string, mixed> $form
    *   The form to submit.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
@@ -163,8 +167,9 @@ class SettingsForm extends ConfigFormBase {
 
   /**
    * Get config names.
-   * 
+   *
    * @return string[]
+   *   A list of config names.
    */
   protected function getEditableConfigNames() {
     return [
