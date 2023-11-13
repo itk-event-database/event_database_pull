@@ -33,7 +33,7 @@ class EventDatabaseTagsFormatter extends FormatterBase {
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $output = [];
     foreach ($items as $delta => $item) {
-      /** @var FieldItemInterface $item */
+      /** @var string $type */
       $build['type'] = [
         '#markup' => $item->type,
       ];
