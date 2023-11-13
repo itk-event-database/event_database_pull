@@ -31,7 +31,7 @@ class EventDatabase {
   /**
    * Get events.
    *
-   * @param array $query
+   * @param array $query<string, mixed>
    *   The query to filter events by.
    * @param bool $mergeQuery
    *   Whether to merge query.
@@ -54,7 +54,7 @@ class EventDatabase {
   /**
    * Get occurrences.
    *
-   * @param array $query
+   * @param array $query<string, mixed>
    *   The query to filter events by.
    * @param bool $mergeQuery
    *   Whether to merge query.
