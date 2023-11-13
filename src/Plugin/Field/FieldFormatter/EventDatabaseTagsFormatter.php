@@ -21,12 +21,12 @@ class EventDatabaseTagsFormatter extends FormatterBase {
   /**
    * View elements method.
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   * @param \Drupal\Core\Field\FieldItemListInterface<string, mixed> $items
    *   A list of field items.
    * @param string $langcode
    *   The langcode.
    *
-   * @return array[]
+   * @return array<int, mixed>
    *   A list of elements.
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
