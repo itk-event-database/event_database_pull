@@ -8,6 +8,7 @@ use Itk\EventDatabaseClient\Client;
 use Itk\EventDatabaseClient\Collection;
 use Itk\EventDatabaseClient\Item\Event;
 use Itk\EventDatabaseClient\Item\Occurrence;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
