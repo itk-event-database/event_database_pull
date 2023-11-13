@@ -21,9 +21,17 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Build form.
+   *
+   * @param array<string, mixed> $form
+   *   The parent form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   THe state of the form.
+   *
+   * @return array<string, mixed>
+   *   The modified form.
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
     $config = $this->config('event_database_pull.settings');
 
@@ -110,9 +118,12 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * @param array<string, mixed> $form
+   *   The form to validate.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The start of the form to validate.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     try {
       $value = $form_state->getValue(['list', 'query']);
       Yaml::parse($value);
@@ -125,9 +136,12 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * @param array<string, mixed> $form
+   *   The form to submit.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The starte of the form to submit.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('event_database_pull.settings');
 
     $config->set('api.url', $form_state->getValue(['api', 'url']));
@@ -148,7 +162,9 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Get config names.
+   * 
+   * @return string[]
    */
   protected function getEditableConfigNames() {
     return [
