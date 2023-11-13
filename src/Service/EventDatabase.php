@@ -4,8 +4,8 @@ namespace Drupal\event_database_pull\Service;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
-use EventDatabaseClient\Collection;
 use Itk\EventDatabaseClient\Client;
+use Itk\EventDatabaseClient\Collection;
 use Itk\EventDatabaseClient\Item\Event;
 use Itk\EventDatabaseClient\Item\Occurrence;
 use Symfony\Component\Yaml\Yaml;
@@ -36,7 +36,7 @@ class EventDatabase {
    * @param bool $mergeQuery
    *   Whether to merge query.
    *
-   * @return \Itk\EventDatabaseClient\Collection The events.
+   * @return \Itk\EventDatabaseClient\Collection
    *   The events.
    */
   public function getEvents(array $query, bool $mergeQuery = TRUE): Collection {
@@ -65,7 +65,7 @@ class EventDatabase {
   public function getOccurrences(array $query, bool $mergeQuery = TRUE): Collection {
     $client = $this->getClient();
     $query = $this->getOccurrencesListQuery($query, $mergeQuery);
-    // Align Drupals pager to event database query (Drupal starts at 0 event DB at 1)
+    // Align Drupals pager to event database query.
     if (array_key_exists('page', $query)) {
       $query['page'] = $query['page'];
     }
@@ -123,8 +123,10 @@ class EventDatabase {
    * Decide if an event is in the past.
    *
    * @param \Itk\EventDatabaseClient\Item\Event $event
+   *  An event db event.
    *
    * @return bool
+   *   Whether the event is in the past.
    *
    * @throws \Exception
    */
@@ -182,11 +184,12 @@ class EventDatabase {
    *
    * @param array $userQuery
    *   The initial query.
-   *
+   * @param bool $mergeQuery
+   *   Whether to merge the query or not
    * @return array
    *   The query;
    */
-  private function getListQuery(array $userQuery, $mergeQuery): array {
+  private function getListQuery(array $userQuery, bool $mergeQuery): array {
     $query = [];
 
     if ($mergeQuery) {
@@ -223,7 +226,6 @@ class EventDatabase {
    *
    * @param array $userQuery
    *   The initial query.
-   *
    * @param bool $mergeQuery
    *   Whether to merge the query query.
    *
@@ -267,8 +269,6 @@ class EventDatabase {
    *
    * @param \Itk\EventDatabaseClient\Item\Occurrence $occurrence
    *   The occurrence.
-   *
-   * @return void
    */
   private function determineSameDate(Occurrence $occurrence): void {
     $startDate = $occurrence->get('startDate');
