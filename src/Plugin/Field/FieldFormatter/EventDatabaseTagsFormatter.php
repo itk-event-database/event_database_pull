@@ -22,20 +22,18 @@ class EventDatabaseTagsFormatter extends FormatterBase {
   /**
    * View elements method.
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface<FieldItemInterface> $items
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   A list of field items.
    * @param string $langcode
    *   The langcode.
-   *
-   * @property-read FieldItemInterface $item
    *
    * @return array<int, mixed>
    *   A list of elements.
    */
   public function viewElements(FieldItemListInterface $items, $langcode): array {
     $output = [];
-    /** @var FieldItemListInterface $item */
     foreach ($items as $delta => $item) {
+      /** @var FieldItemInterface $item */
       $build['type'] = [
         '#markup' => $item->type,
       ];
