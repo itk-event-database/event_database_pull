@@ -123,7 +123,7 @@ class EventDatabase {
    * Decide if an event is in the past.
    *
    * @param \Itk\EventDatabaseClient\Item\Event $event
-   *  An event db event.
+   *   An event db event.
    *
    * @return bool
    *   Whether the event is in the past.
@@ -185,7 +185,8 @@ class EventDatabase {
    * @param array $userQuery
    *   The initial query.
    * @param bool $mergeQuery
-   *   Whether to merge the query or not
+   *   Whether to merge the query or not.
+   *
    * @return array
    *   The query;
    */
