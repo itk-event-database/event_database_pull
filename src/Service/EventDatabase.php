@@ -147,7 +147,7 @@ class EventDatabase {
    * @param \Itk\EventDatabaseClient\Item\Event $event
    *   The event.
    */
-  private function augment(Event $event) {
+  private function augment(Event $event): void {
     // Add "same date" property to occurrences.
     foreach ($event->getOccurrences() as $occurrence) {
       $this->determineSameDate($occurrence);
@@ -160,7 +160,7 @@ class EventDatabase {
    * @param \Itk\EventDatabaseClient\Item\Occurrence $occurrence
    *   The occurrence.
    */
-  private function augmentOccurrence(Occurrence $occurrence) {
+  private function augmentOccurrence(Occurrence $occurrence): void {
     // Add "same date" property to occurrences.
     $this->determineSameDate($occurrence);
   }
@@ -182,12 +182,12 @@ class EventDatabase {
   /**
    * Get query for getting events.
    *
-   * @param array $userQuery
+   * @param array<string, mixed> $userQuery
    *   The initial query.
    * @param bool $mergeQuery
    *   Whether to merge the query or not.
    *
-   * @return array
+   * @return array<string, mixed>
    *   The query;
    */
   private function getListQuery(array $userQuery, bool $mergeQuery): array {
@@ -225,12 +225,12 @@ class EventDatabase {
   /**
    * Get query for getting occurrences.
    *
-   * @param array $userQuery
+   * @param array<string, mixed> $userQuery
    *   The initial query.
    * @param bool $mergeQuery
    *   Whether to merge the query query.
    *
-   * @return array
+   * @return array<string, mixed>
    *   The query.
    */
   private function getOccurrencesListQuery(array $userQuery, bool $mergeQuery): array {
