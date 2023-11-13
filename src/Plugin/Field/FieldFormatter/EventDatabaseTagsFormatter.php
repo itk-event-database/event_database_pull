@@ -2,6 +2,7 @@
 
 namespace Drupal\event_database_pull\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 
@@ -21,7 +22,7 @@ class EventDatabaseTagsFormatter extends FormatterBase {
   /**
    * View elements method.
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface<mixed> $items
+   * @param \Drupal\Core\Field\FieldItemListInterface<FieldItemInterface> $items
    *   A list of field items.
    * @param string $langcode
    *   The langcode.
