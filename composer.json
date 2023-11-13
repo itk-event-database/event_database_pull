@@ -11,8 +11,7 @@
       }
     },
     "require": {
-        "itk-event-database/event-database-client": "^1.2",
-        "league/uri": "^4.1"
+        "itk-event-database/event-database-client": "^1.2"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
