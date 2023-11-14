@@ -4,9 +4,6 @@ interface translation project: event_database_pull
 interface translation server pattern: modules/event_database_pull/translations/event_database_pull.%language.po
 description: 'Publish events from the Event database'
 core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 package: Event database
 configure: event_database_pull.settings_form
-dependencies:
-  - drupal:image
-  - imagecache_external
