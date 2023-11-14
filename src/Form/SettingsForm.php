@@ -21,15 +21,23 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Build form.
+   *
+   * @param array<string, mixed> $form
+   *   The parent form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   THe state of the form.
+   *
+   * @return array<string, mixed>
+   *   The modified form.
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
     $config = $this->config('event_database_pull.settings');
 
     $form['api'] = [
       '#type' => 'fieldset',
-      '#title' => t('API'),
+      '#title' => $this->t('API'),
       '#tree' => TRUE,
 
       'url' => [
@@ -63,7 +71,7 @@ class SettingsForm extends ConfigFormBase {
       'items_per_page' => [
         '#type' => 'number',
         '#title' => $this->t('Number of events per page'),
-        '#description' => t('The number of events to display per page'),
+        '#description' => $this->t('The number of events to display per page'),
         '#default_value' => $config->get('list.items_per_page') ?: 5,
         '#size' => 5,
       ],
@@ -110,9 +118,14 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Validate the form.
+   *
+   * @param array<string, mixed> $form
+   *   The form to validate.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The start of the form to validate.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     try {
       $value = $form_state->getValue(['list', 'query']);
       Yaml::parse($value);
@@ -121,13 +134,18 @@ class SettingsForm extends ConfigFormBase {
       $form_state->setError($form['list']['query'], $this->t('Query must be valid YAML (@message)', ['@message' => $ex->getMessage()]));
     }
 
-    // @TODO: Test that we can get events from api.
+    // @todo Test that we can get events from api.
   }
 
   /**
-   * {@inheritdoc}
+   * Submit the form.
+   *
+   * @param array<string, mixed> $form
+   *   The form to submit.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The starte of the form to submit.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('event_database_pull.settings');
 
     $config->set('api.url', $form_state->getValue(['api', 'url']));
@@ -144,11 +162,14 @@ class SettingsForm extends ConfigFormBase {
     $config->save();
     parent::submitForm($form, $form_state);
     $message = Link::createFromRoute($this->t('View events list'), 'event_database_pull.events_list')->toString();
-    drupal_set_message($message);
+    $this->messenger->addMessage($message);
   }
 
   /**
-   * {@inheritdoc}
+   * Get config names.
+   *
+   * @return string[]
+   *   A list of config names.
    */
   protected function getEditableConfigNames() {
     return [
