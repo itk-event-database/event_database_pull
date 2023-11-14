@@ -1,5 +1,10 @@
 # Changelog - Event Database pull
 
+## 1.2.0
+* Removed all code related to display of events/occurrences
+* Add drupal 10 compatibility
+* Added Github workflows
+
 ### 1.1.4
 * Fixed bugs in search
 * Added pager on occurrences list
