@@ -1,6 +1,9 @@
 # Changelog - Event Database pull
 
-## 1.2.0
+## 1.4.1
+* Removed depreceted line in .info.yml
+
+## 1.4.0
 * Removed all code related to display of events/occurrences
 * Add drupal 10 compatibility
 * Added Github workflows
